@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pshish Store | Уютный мерч</title>
+    
+    <!-- Подключение шрифтов: 'Comfortaa' для заголовков (уютный округлый) и 'Inter' для текста -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ПЕРЕМЕННЫЕ И ТЕМЫ --- */
+        :root {
+            /* Светлая тема (Основная - Бумага/Пастель) */
+            --bg-body: #fdfbf7;
+            --bg-header: rgba(253, 251, 247, 0.95);
+            --text-main: #4a4a4a;
+            --text-muted: #7a7a7a;
+            
+            /* Цвета категорий (Пятна краски) */
+            --accent-shirts: #e8d5d5; /* Грязно-розовый */
+            --accent-toys: #d5e0e8;   /* Приглушенно-голубой */
+            --accent-devices: #dcd5e8;/* Тускло-сиреневый */
+
+            /* Элементы */
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --button-primary: #a8a8a8;
+            --button-text: #ffffff;
+            --shadow-soft: 0 10px 25px rgba(0,0,0,0.05);
+            --border-radius-card: 20px 5px 20px 5px; /* Нарисованный эффект */
+            
+            /* Рукописный акцент */
+            --font-hand: 'Comfortaa', cursive;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        /* Темная тема (Ночной уют) */
+        [data-theme="dark"] {
+            --bg-body: #1a1b20;
+            --bg-header: rgba(26, 27, 32, 0.95);
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            
+            --accent-shirts: #2c2424; /* Темно-красный */
+            --accent-toys: #242c33;   /* Темно-синий */
+            --accent-devices: #2b2433;/* Темно-фиолетовый */
+
+            --card-bg: #25262b;
+            --border-color: #333333;
+            --button-primary: #5a5a5a;
+            --button-text: #ffffff;
+            --shadow-soft: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        /* --- БАЗОВЫЕ СТИЛИ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            /* Текстура шума для эффекта бумаги/холста */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        img { max-width: 100%; display: block; }
+
+        /* --- ШАПКА (HEADER) --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-header);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px dashed var(--border-color);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-hand);
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+        
+        .logo::after {
+            content: '.';
+            color: #ff9a9e; /* Акцент цвета */
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            font-family: var(--font-hand);
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background-color: currentColor;
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        nav a:hover::after { width: 100%; }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Кнопка темы */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        /* Корзина */
+        .cart-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-icon {
+            font-size: 1.4rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: #ff9a9e;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-body);
+        }
+
+        /* Выпадающая корзина */
+        .cart-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 300px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: var(--shadow-soft);
+            display: none; /* Скрыто по умолчанию */
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cart-wrapper:hover .cart-dropdown,
+        .cart-wrapper.active .cart-dropdown {
+            display: flex;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .cart-total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .btn-checkout {
+            background: var(--button-primary);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-family: var(--font-hand);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-family: var(--font-hand);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* --- СЕКЦИИ И ФИЛЬТРЫ --- */
+        section {
+            padding: 4rem 5%;
+            position: relative;
+        }
+
+        /* Фоны-пятна для секций */
+        .section-t-shirts { background-color: var(--accent-shirts); }
+        .section-toys { background-color: var(--accent-toys); }
+        .section-devices { background-color: var(--accent-devices); }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-family: var(--font-hand);
+            font-size: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* Эффект подчеркивания от руки */
+        .section-title::before {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: -5px;
+            right: -5px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.4);
+            z-index: -1;
+            border-radius: 10px;
+        }
+
+        /* Визуальные фильтры */
+        .filters {
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.3);
+            padding: 5px 15px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-family: var(--font-body);
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- СЕТКА ТОВАРОВ --- */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-card);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-image-wrapper {
+            position: relative;
+            padding-top: 100%; /* Квадрат 1:1 */
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .card-image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .card-image-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .style-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            backdrop-filter: blur(3px);
+        }
+
+        .card-content {
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-title {
+            font-family: var(--font-hand);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .btn-add {
+            background: var(--text-main);
+            color: var(--bg-body);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .view-all-btn {
+            display: block;
+            margin: 3rem auto 0;
+            padding: 10px 30px;
+            background: transparent;
+            border: 2px solid var(--text-main);
+            color: var(--text-main);
+            font-family: var(--font-hand);
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-all-btn:hover {
+            background: var(--text-main);
+            color: var(--bg-body);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--bg-body);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 2px dashed var(--border-color);
+            margin-top: 2rem;
+        }
+
+        .footer-content h3 {
+            font-family: var(--font-hand);
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .social-links a {
+            font-size: 1.5rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .social-links a:hover { opacity: 1; }
+
+        .contact-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .hero h1 { font-size: 2rem; }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .filters {
+                width: 100%;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА -->
+    <header>
+        <div class="logo">Pshish</div>
+        <nav>
+            <ul>
+                <li><a href="#t-shirts">Футболки</a></li>
+                <li><a href="#toys">Игрушки</a></li>
+                <li><a href="#devices">Девайсы</a></li>
+                <li><a href="#">Блог</a></li>
+            </ul>
+        </nav>
+        <div class="header-controls">
+            <button class="theme-toggle" id="themeToggle" title="Переключить тему">
+                🌙
+            </button>
+            <div class="cart-wrapper" id="cartWrapper">
+                <div class="cart-icon">
+                    🛒 <span class="cart-badge">2</span>
+                </div>
+                
+                <!-- Всплывающая корзина -->
+                <div class="cart-dropdown">
+                    <div class="cart-item">
+                        <img src="https://picsum.photos/seed/shirt1/100/100" alt="Футболка">
+                        <div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">Oversize Hoodie</p>
+                            <p style="font-size: 0.8rem; color: #888;">Размер: M</p>
+                            <p style="font-size: 0.9rem;">2500 ₽</p>
+                        </div>
+                    </div>
+                    <div class="cart-item">
+                        <img src="https://picsum.photos/seed/toy1/100/100" alt="Игрушка">
+                        <div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">Pshish Plush</p>
+                            <p style="font-size: 0.8rem; color: #888;">Вязаный</p>
+                            <p style="font-size: 0.9rem;">1200 ₽</p>
+                        </div>
+                    </div>
+                    <div class="cart-total">Итого: 3700 ₽</div>
+                    <button class="btn-checkout">Оформить заказ</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- ПРИВЕТСТВИЕ -->
+        <section class="hero">
+            <h1>Уютный мерч с душой</h1>
+            <p>Ручная работа, уникальный дизайн и немного магии для твоего гардероба.</p>
+        </section>
+
+        <!-- КАТЕГОРИЯ 1: ФУТБОЛКИ -->
+        <section id="t-shirts" class="section-t-shirts">
+            <div class="section-header">
+                <h2 class="section-title">Футболки и худи</h2>
+                <!-- Визуальные фильтры -->
+                <div class="filters">
+                    <button class="filter-btn active">Все</button>
+                    <button class="filter-btn">Мрачные</button>
+                    <button class="filter-btn">Милые</button>
+                    <button class="filter-btn">Морские</button>
+                </div>
+            </div>
+
+            <div class="products-grid">
+                <!-- Товар 1 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Мрачный</span>
+                        <img src="https://picsum.photos/seed/gloomy1/400/400" alt="Футболка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Dark Cat Oversize</h3>
+                        <p class="product-desc">Плотная хлопковая футболка черного цвета с рисунком меланхоличного кота.</p>
+                        <div class="card-footer">
+                            <span class="product-price">2500 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Товар 2 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Милый</span>
+                        <img src="https://picsum.photos/seed/cute1/400/400" alt="Футболка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Pastel Dreams</h3>
+                        <p class="product-desc">Нежная бежевая толстовка с вышивкой облачков. Идеально для уютных стримов.</p>
+                        <div class="card-footer">
+                            <span class="product-price">3200 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Товар 3 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Морской</span>
+                        <img src="https://picsum.photos/seed/sea1/400/400" alt="Футболка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Captain Pshish</h3>
+                        <p class="product-desc">Джинсовка с якорем и мини-принтом на кармане. Легкая ветровка.</p>
+                        <div class="card-footer">
+                            <span class="product-price">4500 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Товар 4 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Обычный</span>
+                        <img src="https://picsum.photos/seed/normal1/400/400" alt="Футболка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Basic Logo</h3>
+                        <p class="product-desc">Классическая футболка с минималистичным логотипом Pshish на груди.</p>
+                        <div class="card-footer">
+                            <span class="product-price">1900 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="view-all-btn">Смотреть все футболки</button>
+        </section>
+
+        <!-- КАТЕГОРИЯ 2: МЯГКИЕ ИГРУШКИ -->
+        <section id="toys" class="section-toys">
+            <div class="section-header">
+                <h2 class="section-title">Мягкие игрушки</h2>
+                <div class="filters">
+                    <button class="filter-btn active">Все</button>
+                    <button class="filter-btn">Вязаные</button>
+                    <button class="filter-btn">Сшитые</button>
+                </div>
+            </div>
+
+            <div class="products-grid">
+                <!-- Игрушка 1 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Вязаная</span>
+                        <img src="https://picsum.photos/seed/knit1/400/400" alt="Игрушка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">АмурГрум</h3>
+                        <p class="product-desc">Маленький вязаный монстрик с большими глазами. Ручная работа.</p>
+                        <div class="card-footer">
+                            <span class="product-price">1200 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Игрушка 2 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Сшитая</span>
+                        <img src="https://picsum.photos/seed/sew1/400/400" alt="Игрушка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Pshish Plush Big</h3>
+                        <p class="product-desc">Большая мягкая игрушка-талисман в образе стримерши. Мягкий плюш.</p>
+                        <div class="card-footer">
+                            <span class="product-price">3500 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Игрушка 3 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Вязаная</span>
+                        <img src="https://picsum.photos/seed/knit2/400/400" alt="Игрушка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Ghost Buddy</h3>
+                        <p class="product-desc">Вязаный приятель-привидение для декора комнаты.</p>
+                        <div class="card-footer">
+                            <span class="product-price">900 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Игрушка 4 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Сшитая</span>
+                        <img src="https://picsum.photos/seed/sew2/400/400" alt="Игрушка">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Octopus Friend</h3>
+                        <p class="product-desc">Симпатичный осьминог с мягкими щупальцами. Антистресс.</p>
+                        <div class="card-footer">
+                            <span class="product-price">1500 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="view-all-btn">Смотреть все игрушки</button>
+        </section>
+
+        <!-- КАТЕГОРИЯ 3: ДЕВАЙСЫ -->
+        <section id="devices" class="section-devices">
+            <div class="section-header">
+                <h2 class="section-title">Девайсы и мелочи</h2>
+            </div>
+
+            <div class="products-grid">
+                <!-- Девайс 1 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <span class="style-tag">Новинка</span>
+                        <img src="https://picsum.photos/seed/device1/400/400" alt="Коврик">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Коврик для мыши</h3>
+                        <p class="product-desc">Принт с котиками. Поверхность гладкая, основа прорезиненная.</p>
+                        <div class="card-footer">
+                            <span class="product-price">800 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Девайс 2 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <img src="https://picsum.photos/seed/device2/400/400" alt="Брелок">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Брелок "Pshish"</h3>
+                        <p class="product-desc">Акриловый брелок с подписью. Можно повесить на ключи или сумку.</p>
+                        <div class="card-footer">
+                            <span class="product-price">450 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Девайс 3 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <img src="https://picsum.photos/seed/device3/400/400" alt="Чехол">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Чехол на телефон</h3>
+                        <p class="product-desc">Силиконовый чехол. Есть для iPhone и Samsung. Рисунок: Звезды.</p>
+                        <div class="card-footer">
+                            <span class="product-price">600 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Девайс 4 -->
+                <div class="product-card">
+                    <div class="card-image-wrapper">
+                        <img src="https://picsum.photos/seed/device4/400/400" alt="Наклейки">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="product-title">Набор наклеек</h3>
+                        <p class="product-desc">Лист с 10 виниловыми наклейками в стиле мрачный/милый.</p>
+                        <div class="card-footer">
+                            <span class="product-price">300 ₽</span>
+                            <button class="btn-add">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="view-all-btn">Смотреть все девайсы</button>
+        </section>
+    </main>
+
+    <!-- ПОДВАЛ -->
+    <footer>
+        <div class="footer-content">
+            <h3>Pshish Store</h3>
+            <div class="social-links">
+                <a href="#" title="Twitch">📺</a>
+                <a href="#" title="YouTube">▶️</a>
+                <a href="#" title="Telegram">✈️</a>
+                <a href="#" title="VK">💬</a>
+            </div>
+            <div class="contact-info">
+                <p>Есть вопросы? Пиши в чат: @loomanager</p>
+                <p>Телефон: 89508280213</p>
+                <br>
+                <p style="font-size: 0.8rem; opacity: 0.6;">© 2023 Pshish. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- МИНИМАЛЬНЫЙ JS ДЛЯ ИНТЕРАКТИВА -->
+    <script>
+        // 1. Переключение темы (Светлая/Темная)
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeToggle.textContent = '🌙'; // Иконка луны для переключения на темную
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️'; // Иконка солнца для переключения на светлую
+            }
+        });
+
+        // 2. Простая работа с корзиной (открытие/закрытие по клику на мобилках)
+        const cartWrapper = document.getElementById('cartWrapper');
+        
+        cartWrapper.addEventListener('click', (e) => {
+            // Если клик не внутри выпадающего меню, переключаем активный класс
+            if (!e.target.closest('.cart-dropdown')) {
+                cartWrapper.classList.toggle('active');
+            }
+        });
+
+        // 3. Визуальная работа кнопок фильтра (активный класс)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Убираем активный класс у всех кнопок в этой группе
+                btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Добавляем нажатой
+                btn.classList.add('active');
+            });
+        });
+
+        // 4. Кнопки "Добавить в корзину" (Визуальный эффект)
+        const addBtns = document.querySelectorAll('.btn-add');
+        const cartBadge = document.querySelector('.cart-badge');
+        
+        addBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Чтобы не открылась корзина сразу
+                // Визуальный фидбек
+                btn.textContent = '✔';
+                setTimeout(() => {
+                    btn.textContent = '+';
+                }, 1000);
+                
+                // Увеличиваем счетчик (визуально)
+                let count = parseInt(cartBadge.textContent);
+                cartBadge.textContent = count + 1;
+            });
+        });
+    </script>
+</body>
+</html>
