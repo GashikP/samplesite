@@ -172,22 +172,32 @@
         }
 
         /* Выпадающая корзина */
-        .cart-dropdown {
+       .cart-dropdown {
             position: absolute;
-            top: 100%;
+            top: 100%; /* Прижимаем окно вплотную к низу иконки */
             right: 0;
             width: 300px;
             background: var(--card-bg);
             border: 2px solid var(--border-color);
             border-radius: 15px;
-            padding: 1rem;
+            padding: 1rem; /* Стандартный отступ внутри */
+            padding-top: 15px; /* Увеличиваем верхний отступ до 15px */
             box-shadow: var(--shadow-soft);
             display: none; /* Скрыто по умолчанию */
             flex-direction: column;
             gap: 10px;
-            margin-top: 10px;
+            
+            /* ВАЖНО: Убираем margin-top, чтобы не было разрыва */
+            margin-top: 0; 
+            
+            /* Анимация для красоты (опционально) */
+            animation: fadeIn 0.2s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .cart-wrapper:hover .cart-dropdown,
         .cart-wrapper.active .cart-dropdown {
             display: flex;
@@ -503,6 +513,788 @@
                 white-space: nowrap;
             }
         }
+
+        /* --- МОДАЛЬНОЕ ОКНО --- */
+        .modal {
+            display: none; /* Скрыто по умолчанию */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6); /* Затемнение фона */
+            backdrop-filter: blur(4px); /* Эффект матового стекла */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Активация окна */
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 900px; /* Шире, чтобы влез состав */
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+            overflow: hidden;
+            display: flex; /* Добавил flex для выравнивания колонок */
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: row; /* Рядом: фото и текст */
+            height: 600px; /* Фиксированная высота, чтобы можно было скролить */
+        }
+
+        /* Левая часть (Фото) */
+        .modal-gallery {
+            flex: 0 0 50%; /* Занимаем ровно 50% ширины */
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .modal-gallery img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Правая часть (Инфо) */
+        .modal-info {
+            flex: 0 0 50%; /* Занимаем остальные 50% */
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Если описания длинные, можно прокрутить */
+        }
+
+        .modal-title {
+            font-family: var(--font-hand);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-desc {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Новый блок: Состав */
+        .modal-composition {
+            background: #fdfbf7; /* Легкий акцент */
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            display: none; /* Скрыт по умолчанию */
+        }
+        
+        .modal-composition.active {
+            display: block;
+        }
+
+        .composition-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 0.3rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .composition-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            white-space: pre-wrap; /* Сохраняет переносы строк, если они есть в HTML */
+        }
+
+        /* Селектор размеров */
+        .size-selector {
+            margin-bottom: auto; /* Прижимается к низу */
+            margin-top: auto; /* Отодвигаем от описания */
+        }
+
+        .selector-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            margin-top: 1rem;
+        }
+
+        .sizes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .size-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .size-btn:hover {
+            border-color: var(--text-main);
+        }
+
+        .size-btn.active {
+            background: var(--text-main);
+            color: var(--bg-body);
+            border-color: var(--text-main);
+        }
+
+        /* Кнопка покупки в модалке */
+        .btn-buy-modal {
+            margin-top: auto; /* Прижимает кнопку к низу */
+            background: var(--text-main);
+            color: var(--bg-body);
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: var(--font-hand);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn-buy-modal:hover {
+            transform: scale(1.02);
+            background: #000;
+        }
+
+        /* Мобильная версия для модалки */
+        @media (max-width: 768px) {
+            .modal-body {
+                flex-direction: column;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .modal-gallery {
+                height: 300px;
+                flex: none;
+            }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-main);
+            z-index: 10;
+        }
+
+        /* Класс для скрытия товаров при фильтрации */
+        .hidden {
+            display: none !important;
+        }
+
+        .cart-item-remove {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 5px;
+            transition: transform 0.2s;
+        }
+
+        .cart-item-remove:hover {
+            transform: scale(1.2);
+            color: red;
+        }
+
+        /* --- СТРАНИЦА ПОЛНОГО КАТАЛОГА --- */
+        .catalog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-body);
+            z-index: 2000; /* Поверх всего сайта */
+            overflow-y: auto; /* Скролл внутри страницы */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .catalog-header {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-hand);
+        }
+
+        .btn-back:hover { background: var(--border-color); }
+
+        /* Контейнер: Сайдбар + Сетка */
+        .catalog-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        /* Боковая панель */
+        .catalog-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 20px;
+            height: fit-content;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        #catalogSearch {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .price-inputs input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 400;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .btn-apply-filters {
+            width: 100%;
+            padding: 10px;
+            background: var(--text-main);
+            color: var(--bg-body);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Сетка товаров в каталоге */
+        .catalog-content {
+            flex: 1;
+        }
+
+        /* Мобильная версия каталога */
+        @media (max-width: 768px) {
+            .catalog-container {
+                flex-direction: column;
+            }
+            .catalog-sidebar {
+                width: 100%;
+            }
+        }
+
+        /* --- СТИЛИ ДЛЯ КАТАЛОГА (КОМПАКТНЫЕ КАРТОЧКИ) --- */
+
+        /* 1. Сетка в каталоге делаем плотнее и карточки чуть меньше */
+        .catalog-content .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Было 250px */
+            gap: 1.5rem;
+        }
+
+        /* 2. Уменьшаем высоту и шрифты внутри карточки в каталоге */
+        .catalog-content .card-image-wrapper {
+            padding-top: 100%; /* Квадрат 1:1 */
+            background: #f0f0f0;
+        }
+
+        .catalog-content .product-title {
+            font-size: 1rem; /* Уменьшенный заголовок */
+            margin-bottom: 0.3rem;
+        }
+
+        .catalog-content .product-desc {
+            font-size: 0.8rem; /* Меньше описание */
+            margin-bottom: 0.5rem;
+            -webkit-line-clamp: 2; /* Обрезать текст после 2 строк */
+        }
+
+        .catalog-content .product-price {
+            font-size: 1rem;
+        }
+
+        /* 3. Стили для мини-кнопок размера внутри карточки */
+        .mini-size-selector {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .mini-size-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .mini-size-btn:hover {
+            border-color: var(--text-main);
+        }
+
+        /* Активный размер внутри карточки */
+        .mini-size-btn.active {
+            background: var(--text-main);
+            color: var(--bg-body);
+            border-color: var(--text-main);
+        }
+
+        /* Кнопка состава */
+        .btn-compose {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #888;
+            margin-right: 5px;
+            transition: color 0.2s;
+        }
+        .btn-compose:hover { color: #ff9a9e; }
+
+
+        /* --- СТИЛИ ДЛЯ ФОРМЫ ЗАКАЗА --- */
+        .checkout-modal .modal-content {
+            border-radius: 20px 5px 20px 5px; /* Нарисованный эффект */
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--text-main);
+        }
+
+        textarea.form-input {
+            resize: vertical; /* Разрешить растягивать только по вертикали */
+        }
+
+
+        /* --- СТИЛИ REFF-STYLE CHECKOUT --- */
+
+        /* Убираем отступы у модала, чтобы контент был во весь экран */
+        .checkout-modal .modal-content {
+            border-radius: 4px; /* Более строгий вид */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        .checkout-modal .modal-body {
+            padding: 0;
+            overflow-y: auto; /* Если контента много */
+            max-height: 85vh;
+        }
+
+        /* Разделы */
+        .checkout-section {
+            padding: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title-mini {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Строка формы (имя + телефон) */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Инпуты оформлены */
+        .checkout-input {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+
+        .checkout-input:focus {
+            background: #fff;
+            border-color: #333;
+        }
+
+        /* --- КАРТОЧКИ ДОСТАВКИ --- */
+        .delivery-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .delivery-card {
+            position: relative;
+            cursor: pointer;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            display: block;
+        }
+
+        /* Скрываем сам radio-input */
+        .delivery-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Стили карточки */
+        .card-content {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+
+        /* Активная карточка */
+        .delivery-card.active {
+            border-color: #333;
+            background-color: #fcfcfc;
+        }
+
+        .delivery-card.active .card-name {
+            color: #000;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.2rem;
+        }
+
+        .card-desc {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 0.2rem;
+        }
+
+        .card-price {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* --- СУММА В КОРЗИНЕ --- */
+        .checkout-subtotal {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-subtotal span {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        /* --- КОРЗИНА В CHECKOUT --- */
+        .checkout-items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-item-preview {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .checkout-item-preview img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .checkout-item-details h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .checkout-item-details p {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* --- ПОДВАЛ ОФОРМЛЕНИЯ --- */
+        .checkout-footer {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+        }
+
+        .final-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .final-total span {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+        }
+
+        .btn-checkout-big {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn-checkout-big:hover {
+            background: #000;
+            transform: translateY(-2px);
+        }
+
+        /* Мобильная версия чекаута */
+        @media (max-width: 600px) {
+            .delivery-options {
+                grid-template-columns: 1fr;
+            }
+            .checkout-subtotal span {
+                flex-direction: column;
+                display: flex;
+                gap: 5px;
+            }
+        }
+
+        /* --- СТИЛИ ДЛЯ ОФЕРТЫ И УХОДА --- */
+        .offer-section {
+            padding: 4rem 5%;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .offer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .offer-content h2 {
+            font-family: var(--font-hand);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Коробка для скролла текста */
+        .offer-scroll-box {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 20px 5px 20px 5px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 1rem;
+            padding: 1.5rem;
+        }
+
+
+        /* --- СТИЛИ ДЛЯ ИНФО-МОДАЛА --- */
+
+        .info-modal .modal-content {
+            background: #fff;
+            border-radius: 20px 5px 20px 5px;
+        }
+
+        /* Табы */
+        .info-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .info-tab {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .info-tab:hover {
+            background: #f5f5f5;
+            color: var(--text-main);
+        }
+
+        .info-tab.active {
+            background: #333;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* Контент табов */
+        .info-tab-content {
+            display: none;
+            padding-bottom: 1rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .info-tab-content.active {
+            display: block;
+        }
+
+        .info-tab-content h3 {
+            font-family: var(--font-hand);
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .info-tab-content ul li {
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
     </style>
 </head>
 <body>
@@ -515,7 +1307,8 @@
                 <li><a href="#t-shirts">Футболки</a></li>
                 <li><a href="#toys">Игрушки</a></li>
                 <li><a href="#devices">Девайсы</a></li>
-                <li><a href="#">Блог</a></li>
+                <li><a href="#" id="rulesLink">Правила ухода</a></li>
+                <li><a href="#" id="offerLink">Оферта</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -524,28 +1317,18 @@
             </button>
             <div class="cart-wrapper" id="cartWrapper">
                 <div class="cart-icon">
-                    🛒 <span class="cart-badge">2</span>
+                    🛒 <span class="cart-badge">0</span>
                 </div>
                 
                 <!-- Всплывающая корзина -->
-                <div class="cart-dropdown">
-                    <div class="cart-item">
-                        <img src="https://picsum.photos/seed/shirt1/100/100" alt="Футболка">
-                        <div>
-                            <p style="font-size: 0.9rem; font-weight: 600;">Oversize Hoodie</p>
-                            <p style="font-size: 0.8rem; color: #888;">Размер: M</p>
-                            <p style="font-size: 0.9rem;">2500 ₽</p>
-                        </div>
-                    </div>
-                    <div class="cart-item">
-                        <img src="https://picsum.photos/seed/toy1/100/100" alt="Игрушка">
-                        <div>
-                            <p style="font-size: 0.9rem; font-weight: 600;">Pshish Plush</p>
-                            <p style="font-size: 0.8rem; color: #888;">Вязаный</p>
-                            <p style="font-size: 0.9rem;">1200 ₽</p>
-                        </div>
-                    </div>
-                    <div class="cart-total">Итого: 3700 ₽</div>
+               <div class="cart-dropdown">
+                    <!-- Сюда скрипт будет добавлять товары -->
+                    <div id="cart-items-container"></div>
+
+                    <!-- Итоговая сумма -->
+                    <div class="cart-total">Итого: 0 ₽</div>
+                    
+                    <!-- Кнопка оформления (ВНИМАНИЕ: здесь НЕТ onclick) -->
                     <button class="btn-checkout">Оформить заказ</button>
                 </div>
             </div>
@@ -573,9 +1356,18 @@
             </div>
 
             <div class="products-grid">
-                <!-- Товар 1 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
+                
+                <!-- ТОВАР 1 -->
+                <div class="product-card" data-style="dark" data-category="t-shirts">
+                    <div class="card-image-wrapper" 
+                            data-title="Dark Cat Oversize" 
+                            data-price="2500 ₽" 
+                            data-desc="Плотная хлопковая футболка черного цвета с принтом меланхоличного кота. Сшита вручную."
+                            
+                            data-img="https://picsum.photos/seed/gloomy1/600/600"
+                            
+                            data-composition="100% хлопок. Плотность 160 г/м². Ручной трафарет. Не выкручивать перед стиркой при 30°C.">
+        
                         <span class="style-tag">Мрачный</span>
                         <img src="https://picsum.photos/seed/gloomy1/400/400" alt="Футболка">
                     </div>
@@ -583,63 +1375,119 @@
                         <h3 class="product-title">Dark Cat Oversize</h3>
                         <p class="product-desc">Плотная хлопковая футболка черного цвета с рисунком меланхоличного кота.</p>
                         <div class="card-footer">
-                            <span class="product-price">2500 ₽</span>
+                            <div>
+                                <span class="product-price">2500 ₽</span>
+                                <div class="mini-size-selector">
+                                    <button class="mini-size-btn">S</button>
+                                    <button class="mini-size-btn active">M</button>
+                                    <button class="mini-size-btn">L</button>
+                                    <button class="mini-size-btn">XL</button>
+                                </div>
+                                <!-- Кнопка состава -->
+                                <button class="btn-compose" data-comp="100% хлопок. Плотность 160 г/м². Ручной трафарет.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Товар 2 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
+
+                <!-- ТОВАР 2 -->
+                <div class="product-card" data-style="cute" data-category="t-shirts">
+                    <div class="card-image-wrapper" 
+                            data-title="Cute Cat Oversize" 
+                            data-price="3200 ₽" 
+                            data-desc="Толстовка из мягкого хлопка."
+                            data-img="https://picsum.photos/seed/gloomy2/600/600">
+        
                         <span class="style-tag">Милый</span>
-                        <img src="https://picsum.photos/seed/cute1/400/400" alt="Футболка">
+                        <img src="https://picsum.photos/seed/gloomy2/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Pastel Dreams</h3>
                         <p class="product-desc">Нежная бежевая толстовка с вышивкой облачков. Идеально для уютных стримов.</p>
                         <div class="card-footer">
-                            <span class="product-price">3200 ₽</span>
+                            <div>
+                                <span class="product-price">3200 ₽</span>
+                                <div class="mini-size-selector">
+                                    <button class="mini-size-btn">S</button>
+                                    <button class="mini-size-btn active">M</button>
+                                    <button class="mini-size-btn">L</button>
+                                    <button class="mini-size-btn">XL</button>
+                                </div>
+                                <button class="btn-compose" data-comp="100% хлопок, мягкий начес.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Товар 3 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
+
+                <!-- ТОВАР 3 -->
+                <div class="product-card" data-style="sea" data-category="t-shirts">
+                    <div class="card-image-wrapper" 
+                            data-title="Sea Cat Oversize" 
+                            data-price="4500 ₽" 
+                            data-desc="Джинсовка с якорем."
+                            data-img="https://picsum.photos/seed/gloomy3/600/600">
+        
                         <span class="style-tag">Морской</span>
-                        <img src="https://picsum.photos/seed/sea1/400/400" alt="Футболка">
+                        <img src="https://picsum.photos/seed/gloomy3/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Captain Pshish</h3>
                         <p class="product-desc">Джинсовка с якорем и мини-принтом на кармане. Легкая ветровка.</p>
                         <div class="card-footer">
-                            <span class="product-price">4500 ₽</span>
+                            <div>
+                                <span class="product-price">4500 ₽</span>
+                                <div class="mini-size-selector">
+                                    <button class="mini-size-btn">S</button>
+                                    <button class="mini-size-btn active">M</button>
+                                    <button class="mini-size-btn">L</button>
+                                    <button class="mini-size-btn">XL</button>
+                                </div>
+                                <button class="btn-compose" data-comp="Плотная джинсовка.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Товар 4 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Обычный</span>
-                        <img src="https://picsum.photos/seed/normal1/400/400" alt="Футболка">
+
+                <!-- ТОВАР 4 -->
+                <div class="product-card" data-style="dark" data-category="t-shirts">
+                    <div class="card-image-wrapper" 
+                            data-title="Basic Logo" 
+                            data-price="1900 ₽" 
+                            data-desc="Классическая футболка."
+                            data-img="https://picsum.photos/seed/gloomy4/600/600">
+        
+                        <span class="style-tag">Злой</span>
+                        <img src="https://picsum.photos/seed/gloomy4/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Basic Logo</h3>
                         <p class="product-desc">Классическая футболка с минималистичным логотипом Pshish на груди.</p>
                         <div class="card-footer">
-                            <span class="product-price">1900 ₽</span>
+                            <div>
+                                <span class="product-price">1900 ₽</span>
+                                <div class="mini-size-selector">
+                                    <button class="mini-size-btn">S</button>
+                                    <button class="mini-size-btn active">M</button>
+                                    <button class="mini-size-btn">L</button>
+                                    <button class="mini-size-btn">XL</button>
+                                </div>
+                                <button class="btn-compose" data-comp="100% хлопок.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <button class="view-all-btn">Смотреть все футболки</button>
+            <button class="view-all-btn">Смотреть всё</button>
         </section>
 
         <!-- КАТЕГОРИЯ 2: МЯГКИЕ ИГРУШКИ -->
-        <section id="toys" class="section-toys">
+        <section id="toys" class="section-toys" data-category="toys">
             <div class="section-header">
                 <h2 class="section-title">Мягкие игрушки</h2>
                 <div class="filters">
@@ -651,68 +1499,109 @@
 
             <div class="products-grid">
                 <!-- Игрушка 1 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Вязаная</span>
-                        <img src="https://picsum.photos/seed/knit1/400/400" alt="Игрушка">
+                <div class="product-card" data-type="sew" data-category="toys">
+                       <div class="card-image-wrapper" 
+                                data-title="АмурГрум" 
+                                data-price="1200 ₽" 
+                                data-desc="Маленький вязаный монстрик с большими глазами. Ручная работа."
+                                data-img="https://picsum.photos/seed/gloomy5/600/600"
+                                data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
+    
+                       <span class="style-tag">Вязаная</span>
+                  <img src="https://picsum.photos/seed/gloomy5/400/400" alt="Игрушка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">АмурГрум</h3>
                         <p class="product-desc">Маленький вязаный монстрик с большими глазами. Ручная работа.</p>
                         <div class="card-footer">
-                            <span class="product-price">1200 ₽</span>
+                            <div>
+                                <span class="product-price">1200 ₽</span>
+                                <!-- Игрушкам размеры обычно не нужны -->
+                                <div class="mini-size-selector" style="display:none;"></div>
+                                <button class="btn-compose" data-comp="100% шерсть, холофайбер.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Игрушка 2 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Сшитая</span>
-                        <img src="https://picsum.photos/seed/sew1/400/400" alt="Игрушка">
+                <div class="product-card" data-type="sew" data-category="toys">
+                      <div class="card-image-wrapper" 
+                                data-title="Pshish Plush Big" 
+                                data-price="3500 ₽" 
+                                data-desc="Большая мягкая игрушка-талисман."
+                                data-img="https://picsum.photos/seed/gloomy6/600/600"
+                                data-composition="Большая мягкая игрушка-талисман в образе стримерши. Мягкий плюш.">
+    
+                       <span class="style-tag">Вязаная</span>
+                  <img src="https://picsum.photos/seed/gloomy6/400/400" alt="Игрушка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Pshish Plush Big</h3>
                         <p class="product-desc">Большая мягкая игрушка-талисман в образе стримерши. Мягкий плюш.</p>
                         <div class="card-footer">
-                            <span class="product-price">3500 ₽</span>
+                            <div>
+                                <span class="product-price">3500 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                                <button class="btn-compose" data-comp="Мягкий плюш, холофайбер.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Игрушка 3 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Вязаная</span>
-                        <img src="https://picsum.photos/seed/knit2/400/400" alt="Игрушка">
+                <div class="product-card" data-type="knit" data-category="toys">
+                       <div class="card-image-wrapper" 
+                                data-title="Ghost Buddy" 
+                                data-price="900 ₽" 
+                                data-desc="Вязаный приятель-привидение для декора комнаты."
+                                data-img="https://picsum.photos/seed/gloomy7/600/600"
+                                data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
+    
+                       <span class="style-tag">Вязаная</span>
+                  <img src="https://picsum.photos/seed/gloomy7/400/400" alt="Игрушка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Ghost Buddy</h3>
                         <p class="product-desc">Вязаный приятель-привидение для декора комнаты.</p>
                         <div class="card-footer">
-                            <span class="product-price">900 ₽</span>
+                            <div>
+                                <span class="product-price">900 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                                <button class="btn-compose" data-comp="100% шерсть.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Игрушка 4 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Сшитая</span>
-                        <img src="https://picsum.photos/seed/sew2/400/400" alt="Игрушка">
+                <div class="product-card" data-type="knit" data-category="toys">
+                       <div class="card-image-wrapper" 
+                                data-title="Octopus Friend" 
+                                data-price="1500 ₽" 
+                                data-desc="Симпатичный осьминог с мягкими щупальцами. Антистресс."
+                                data-img="https://picsum.photos/seed/gloomy8/600/600"
+                                data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
+    
+                       <span class="style-tag">Вязаная</span>
+                  <img src="https://picsum.photos/seed/gloomy8/400/400" alt="Игрушка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Octopus Friend</h3>
                         <p class="product-desc">Симпатичный осьминог с мягкими щупальцами. Антистресс.</p>
                         <div class="card-footer">
-                            <span class="product-price">1500 ₽</span>
+                            <div>
+                                <span class="product-price">1500 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                                <button class="btn-compose" data-comp="100% шерсть.">ℹ</button>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button class="view-all-btn">Смотреть все игрушки</button>
+            <button class="view-all-btn">Смотреть всё</button>
         </section>
 
         <!-- КАТЕГОРИЯ 3: ДЕВАЙСЫ -->
@@ -723,67 +1612,153 @@
 
             <div class="products-grid">
                 <!-- Девайс 1 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <span class="style-tag">Новинка</span>
-                        <img src="https://picsum.photos/seed/device1/400/400" alt="Коврик">
+                <div class="product-card" data-style="dark" data-category="devices">
+                       <div class="card-image-wrapper" 
+                                data-title="Коврик для мыши" 
+                                data-price="800 ₽" 
+                                data-desc="Принт с котиками."
+                                data-img="https://picsum.photos/seed/gloomy9/600/600">
+    
+                       <span class="style-tag">Коврик</span>
+                  <img src="https://picsum.photos/seed/gloomy9/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Коврик для мыши</h3>
                         <p class="product-desc">Принт с котиками. Поверхность гладкая, основа прорезиненная.</p>
                         <div class="card-footer">
-                            <span class="product-price">800 ₽</span>
+                            <div>
+                                <span class="product-price">800 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Девайс 2 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <img src="https://picsum.photos/seed/device2/400/400" alt="Брелок">
+                <div class="product-card" data-style="sea" data-category="devices">
+                       <div class="card-image-wrapper" 
+                                data-title="Брелок &quot;Pshish&quot;" 
+                                data-price="450 ₽" 
+                                data-desc="Акриловый брелок с подписью."
+                                data-img="https://picsum.photos/seed/gloomy10/600/600">
+    
+                       <span class="style-tag">Коврик</span>
+                  <img src="https://picsum.photos/seed/gloomy10/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Брелок "Pshish"</h3>
                         <p class="product-desc">Акриловый брелок с подписью. Можно повесить на ключи или сумку.</p>
                         <div class="card-footer">
-                            <span class="product-price">450 ₽</span>
+                            <div>
+                                <span class="product-price">450 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Девайс 3 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <img src="https://picsum.photos/seed/device3/400/400" alt="Чехол">
+                <div class="product-card" data-style="cute" data-category="devices">
+                       <div class="card-image-wrapper" 
+                                data-title="Чехол на телефон" 
+                                data-price="600 ₽" 
+                                data-desc="Силиконовый чехол."
+                                data-img="https://picsum.photos/seed/gloomy11/600/600">
+    
+                       <span class="style-tag">Чехол</span>
+                  <img src="https://picsum.photos/seed/gloomy11/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Чехол на телефон</h3>
                         <p class="product-desc">Силиконовый чехол. Есть для iPhone и Samsung. Рисунок: Звезды.</p>
                         <div class="card-footer">
-                            <span class="product-price">600 ₽</span>
+                            <div>
+                                <span class="product-price">600 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
                 <!-- Девайс 4 -->
-                <div class="product-card">
-                    <div class="card-image-wrapper">
-                        <img src="https://picsum.photos/seed/device4/400/400" alt="Наклейки">
+                <div class="product-card" data-style="dark" data-category="devices">
+                       <div class="card-image-wrapper" 
+                                data-title="Набор наклеек" 
+                                data-price="300 ₽" 
+                                data-desc="Лист с 10 виниловыми наклейками."
+                                data-img="https://picsum.photos/seed/gloomy12/600/600">
+    
+                       <span class="style-tag">Наклейки</span>
+                  <img src="https://picsum.photos/seed/gloomy12/400/400" alt="Футболка">
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Набор наклеек</h3>
                         <p class="product-desc">Лист с 10 виниловыми наклейками в стиле мрачный/милый.</p>
                         <div class="card-footer">
-                            <span class="product-price">300 ₽</span>
+                            <div>
+                                <span class="product-price">300 ₽</span>
+                                <div class="mini-size-selector" style="display:none;"></div>
+                            </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button class="view-all-btn">Смотреть все девайсы</button>
+            <button class="view-all-btn">Смотреть всё</button>
         </section>
     </main>
+
+    <!-- СЕКЦИЯ ОФЕРТА -->
+    <section id="offerSection" class="offer-section">
+        <div class="offer-content">
+            <h2 class="section-title">Публичная оферта</h2>
+            <p>Прокрутите вниз, чтобы ознакомиться с условиями.</p>
+            
+            <!-- Блок для скролла текста -->
+            <div class="offer-scroll-box">
+                <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.5;">
+Договор публичной оферты о продаже товаров в интернет-магазине «Pshish Store»
+
+1. Общие положения
+1.1. «Pshish Store», далее «Продавец», публикует Публичную оферту о продаже товаров по образцам, представленным на официальном интернет-сайте Продавца. В соответствии со статьей 437 Гражданского Кодекса Российской Федерации (ГК РФ) данный документ является публичной офертой, и в случае принятия изложенных ниже условий физическое лицо, производящее акцепт этой оферты, осуществляет оплату Товара Продавца в соответствии с условиями настоящего Договора. В соответствии с пунктом 3 статьи 438 ГК РФ, оплата Товара Покупателем является акцептом оферты, что считается равносильным заключению Договора на условиях, изложенных в оферте.
+1.3. На основании вышеизложенного, внимательно ознакомьтесь с текстом публичной оферты, и если вы не согласны с каким-либо пунктом оферты, Вам предлагается отказаться от покупки Товаров или использования Услуг, предоставляемых Продавцом.
+
+2. Предмет договора
+2.1. Продавец продает Товар в соответствии с действующим прейскурантом. Настоящий Договор и приложения к нему являются официальными документами Продавца.
+
+3. Оформление Заказа
+3.1. Заказ Товара осуществляется Покупателем через Интернет-сайт.
+3.6. Оплата Покупателем самостоятельно оформленного на интернет-сайте Заказа означает согласие Покупателя с условиями настоящего Договора.
+
+4. Сроки исполнения Заказа
+4.1. Срок исполнения Заказа зависит от наличия заказанных позиций Товара на складе Продавца. В случае отсутствия части Заказа на складе Продавца, Продавец вправе аннулировать указанный товар из Заказа Покупателя.
+
+5. Оплата Заказа
+5.1. Оплата исполненного Заказа происходит через авторизационный сервер Процессингового центра Банка с использованием Банковских кредитных карт.
+5.2. Цены на любые позиции Товара могут быть изменены Продавцом в одностороннем порядке без уведомления Покупателя.
+5.3. Покупатель вправе подтвердить либо аннулировать Заказ. В случае отсутствия связи с Покупателем Заказ считается аннулированным в течение 3 календарных дней с момента оформления.
+
+6. Доставка товара.
+6.2. Право собственности на Товар и риски случайного повреждения и/или гибели Товара переходят на Покупателя с момента фактической передачи Товара и подписания им товаросопроводительных документов при доставке Товара Покупателю.
+
+7. Возврат Заказа
+7.1. В соответствии с п. 4. ст. 26.1. Закона РФ № 2300-I «О Защите прав потребителей», Покупатель вправе отказаться от заказанного Товара в любое время до момента исполнения Заказа.
+7.5. В соответствии со ст. 22 Закона РФ № 2300-I «О Защите прав потребителей», уплаченная Покупателем сумма за Товар ненадлежащего качества подлежит возврату Покупателю в течение 10 календарных дней с момента предъявления соответствующего требования.
+7.6. Товары надлежащего качества, не подлежащие возврату в соответствии с Постановлением Правительства РФ от 20.10.1998 N 1222 (например, косметические средства, парфюмерно-косметическая продукция, товары бытовой химии и т.п.).
+
+8. Права, обязанности и ответственность
+8.1. Продавец не несет ответственности за ненадлежащее использование товаров Покупателем.
+8.5. Все претензии по ненадлежащему исполнению заказа Покупатель вправе направить на адрес электронной почты или личные сообщения сообщества Вконтакте.
+
+ИП [Твои Фамилия Имя]
+Адрес: [Твой Адрес]
+Телефон: [Твой Телефон]
+Email: [Твой Email]
+                </pre>
+            </div>
+        </div>
+    </section>
 
     <!-- ПОДВАЛ -->
     <footer>
@@ -804,62 +1779,711 @@
         </div>
     </footer>
 
-    <!-- МИНИМАЛЬНЫЙ JS ДЛЯ ИНТЕРАКТИВА -->
-    <script>
-        // 1. Переключение темы (Светлая/Темная)
+
+    <!-- ПОЛНЫЙ КАТАЛОГ (СКРЫТ) -->
+    <div id="fullCatalog" class="catalog-overlay hidden">
+        
+        <!-- Шапка каталога -->
+        <div class="catalog-header">
+            <button class="btn-back" id="closeCatalogBtn">← Вернуться</button>
+            <h2 id="catalogPageTitle">Все товары</h2>
+        </div>
+
+       <div class="catalog-container">
+            
+        <!-- БОКОВАЯ ПАНЕЛЬ С ФИЛЬТРАМИ -->
+        <aside class="catalog-sidebar">
+            <!-- Поиск -->
+            <div class="filter-group">
+                <label>Поиск</label>
+                <input type="text" id="catalogSearch" placeholder="Название товара...">
+            </div>
+
+            <!-- Фильтр по ТИПУ ТОВАРА -->
+            <div class="filter-group">
+                <label>Категория товара</label>
+                <label class="checkbox-label"><input type="checkbox" value="t-shirts" checked class="checkbox-category"> Футболки</label>
+                <label class="checkbox-label"><input type="checkbox" value="toys" checked class="checkbox-category"> Игрушки</label>
+                <label class="checkbox-label"><input type="checkbox" value="devices" checked class="checkbox-category"> Девайсы</label>
+            </div>
+
+            <!-- Фильтр по цене -->
+            <div class="filter-group">
+                <label>Цена</label>
+                <div class="price-inputs">
+                    <input type="number" placeholder="От">
+                    <input type="number" placeholder="До">
+                </div>
+            </div>
+
+            <!-- Доп фильтры (Стили) -->
+            <div class="filter-group">
+                <label>Стиль</label>
+                <label class="checkbox-label"><input type="checkbox" value="dark"> Мрачные</label>
+                <label class="checkbox-label"><input type="checkbox" value="cute"> Милые</label>
+                <label class="checkbox-label"><input type="checkbox" value="sea"> Морские</label>
+            </div>
+        </aside>
+
+        <!-- ОСНОВНОЙ КОНТЕНТ (СЕТКА ТОВАРОВ) -->
+        <div class="catalog-content">
+            
+            <!-- ЕДИНСТВЕННЫЙ БЛОК СЕТКИ (ВСЕ ТОВАРЫ ВНУТРИ НЕГО) -->
+            <div id="catalogGrid" class="products-grid">
+                <!-- Товары сюда скопирует JS -->
+            </div> 
+        </div> <!-- Конец catalog-content -->
+    </div> <!-- Конец catalog-container -->
+
+            
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <!-- Кнопка закрытия -->
+            <span class="close-modal">&times;</span>
+            
+            <div class="modal-body">
+                <!-- Левая колонка: Фото -->
+                <div class="modal-gallery">
+                    <img src="" alt="Большое фото" id="modalImg">
+                </div>
+                
+                <!-- Правая колонка: Инфо -->
+                <div class="modal-info">
+                    
+                    <!-- Заголовку добавили id="modalTitle" -->
+                    <h2 id="modalTitle" class="modal-title">Dark Cat Oversize</h2>
+
+                    <!-- Цене добавили id="modalPrice" -->
+                    <p id="modalPrice" class="modal-price">2500 ₽</p>
+
+                    <!-- Описанию добавили id="modalDesc" -->
+                    <p id="modalDesc" class="modal-desc">
+                        Плотная хлопковая футболка черного цвета с принтом меланхоличного кота. 
+                        Сшита вручную с любовью. Материал мягкий, не линяет при стирке.
+                </p>
+
+                    <!-- Выбор размера -->
+                    <div class="size-selector">
+                        <p class="selector-label">Размер:</p>
+                        <div class="sizes">
+                            <button class="size-btn">XS</button>
+                            <button class="size-btn active">S</button>
+                            <button class="size-btn">M</button>
+                            <button class="size-btn">L</button>
+                            <button class="size-btn">XL</button>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка покупки -->
+                    <button class="btn-buy-modal">Добавить в корзину</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ОФОРМЛЕНИЯ ЗАКАЗА (СТИЛЬ REFF) -->
+    <div id="checkoutModal" class="modal checkout-modal">
+        <div class="modal-content" style="max-width: 600px; background: #fff;">
+            <!-- Кнопка закрытия -->
+            <span class="close-modal" id="closeCheckoutBtn">&times;</span>
+            
+            <div class="modal-body" style="flex-direction: column; padding: 0;">
+                <h2 style="font-family: var(--font-hand); font-size: 2rem; margin: 2rem 0 1.5rem; text-align: center; color: #333;">Оформление заказа</h2>
+                
+                <form id="orderForm" style="padding: 0 2rem;">
+                    
+                    <!-- БЛОК 1: Корзина -->
+                    <div class="checkout-section">
+                        <h3 class="section-title-mini">Ваш заказ</h3>
+                        <div id="checkoutItemsContainer">
+                            <!-- Сюда JS переложит товары -->
+                        </div>
+                        <div class="checkout-subtotal">
+                            <span>Товары: <b id="checkoutItemsTotal">0 ₽</b></span>
+                        <span>Доставка: <b id="checkoutDeliveryCost">0 ₽</b></span>
+                        <span style="font-size: 1.2rem;">Итого: <b id="checkoutGrandTotal" style="color: #ff6b6b;">0 ₽</b></span>
+                        </div>
+                    </div>
+
+                    <!-- БЛОК 2: Данные получателя -->
+                    <div class="checkout-section">
+                        <h3 class="section-title-mini">Получатель</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Имя</label>
+                                <input type="text" class="form-input checkout-input" placeholder="Иван" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Телефон</label>
+                                <input type="tel" class="form-input checkout-input" placeholder="+7 999 000 00 00" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- БЛОК 3: Способ доставки -->
+                    <div class="checkout-section">
+                        <h3 class="section-title-mini">Способ доставки</h3>
+                        
+                        <div class="delivery-options">
+                            <!-- СДЭК -->
+                            <label class="delivery-card active">
+                                <input type="radio" name="delivery" value="cdek" data-price="300" checked>
+                                <div class="card-content">
+                                    <div class="card-icon">📦</div>
+                                    <div class="card-info">
+                                        <span class="card-name">СДЭК</span>
+                                        <span class="card-desc">3-7 дней</span>
+                                        <span class="card-price">300 ₽</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Почта России -->
+                            <label class="delivery-card">
+                                <input type="radio" name="delivery" value="post" data-price="250">
+                                <div class="card-content">
+                                    <div class="card-icon">📮</div>
+                                    <div class="card-info">
+                                        <span class="card-name">Почта России</span>
+                                        <span class="card-desc">7-14 дней</span>
+                                        <span class="card-price">250 ₽</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Курьер -->
+                            <label class="delivery-card">
+                                <input type="radio" name="delivery" value="courier" data-price="500">
+                                <div class="card-content">
+                                    <div class="card-icon">🛵</div>
+                                    <div class="card-info">
+                                        <span class="card-name">Курьер</span>
+                                        <span class="card-desc">1-2 дня</span>
+                                        <span class="card-price">500 ₽</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- БЛОК 4: Адрес -->
+                    <div class="checkout-section">
+                        <h3 class="section-title-mini">Адрес доставки</h3>
+                        <div class="form-group">
+                            <label>Город</label>
+                            <input type="text" class="form-input checkout-input" placeholder="Город" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Улица, дом, квартира</label>
+                            <textarea class="form-input checkout-input" rows="3" placeholder="Адрес..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Комментарий к заказу (необязательно)</label>
+                            <textarea class="form-input checkout-input" rows="2" placeholder="Позвони, если домофон..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка отправки -->
+                    <div class="checkout-footer">
+                        <div class="final-total">К оплате: <span id="checkoutFinalTotal">0 ₽</span></div>
+                        <button type="submit" class="btn-checkout-big">Подтвердить заказ</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    // ==========================================
+    // ЧАСТЬ 1: ГЛОБАЛЬНЫЕ ФУНКЦИИ (Корзина)
+    // ==========================================
+    
+    // Загрузка из памяти
+    const savedCart = localStorage.getItem('pshish_cart');
+    let cart = savedCart ? JSON.parse(savedCart) : []; // cart доступна глобально
+
+    // Элементы корзины
+    const cartBadge = document.querySelector('.cart-badge');
+    const cartContainer = document.getElementById('cart-items-container');
+    const cartTotalElement = document.querySelector('.cart-total');
+
+    function saveCart() {
+        localStorage.setItem('pshish_cart', JSON.stringify(cart));
+    }
+
+    function renderCart() {
+        cartContainer.innerHTML = '';
+        let total = 0;
+        let count = 0;
+
+        cart.forEach((item, index) => {
+            let priceValue = parseInt(item.price.replace(/\D/g, ''));
+            total += priceValue;
+            count++;
+
+            const sizeHtml = item.size ? `<p style="font-size: 0.75rem; color: #666; margin: 2px 0;">Размер: ${item.size}</p>` : '';
+
+            const itemHtml = `
+                <div class="cart-item">
+                    <img src="${item.img}" alt="${item.title}">
+                    <div style="flex: 1;">
+                        <p style="font-size: 0.9rem; font-weight: 600;">${item.title}</p>
+                        ${sizeHtml}
+                        <p style="font-size: 0.8rem; color: #888;">${item.price}</p>
+                    </div>
+                    <button class="cart-item-remove" onclick="removeFromCart(${index})">&times;</button>
+                </div>
+            `;
+            cartContainer.insertAdjacentHTML('beforeend', itemHtml);
+        });
+
+        if (cart.length === 0) cartContainer.innerHTML = '<p style="text-align:center; color:#888; padding:10px;">Корзина пуста</p>';
+
+        cartTotalElement.textContent = `Итого: ${total} ₽`;
+        cartBadge.textContent = count;
+    }
+
+    function addToCart(title, price, img, size) {
+        cart.push({ title, price, img, size });
+        saveCart();
+        renderCart();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveCart();
+        renderCart();
+    }
+
+    function clearCart() {
+        cart = [];
+        saveCart();
+        renderCart();
+    }
+    renderCart();
+
+    // ==========================================
+    // ЧАСТЬ 2: ЛОГИКА СТРАНИЦЫ (Ждет загрузки)
+    // ==========================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("Скрипт загружен, корзина работает!");
+
+        // --- 1. ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ---
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = body.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                body.removeAttribute('data-theme');
-                themeToggle.textContent = '🌙'; // Иконка луны для переключения на темную
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeToggle.textContent = '☀️'; // Иконка солнца для переключения на светлую
-            }
-        });
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    body.removeAttribute('data-theme');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        }
 
-        // 2. Простая работа с корзиной (открытие/закрытие по клику на мобилках)
+        // --- 2. РАБОТА КОРЗИНЫ (Открытие) ---
         const cartWrapper = document.getElementById('cartWrapper');
-        
-        cartWrapper.addEventListener('click', (e) => {
-            // Если клик не внутри выпадающего меню, переключаем активный класс
-            if (!e.target.closest('.cart-dropdown')) {
-                cartWrapper.classList.toggle('active');
-            }
+        if (cartWrapper) cartWrapper.addEventListener('click', (e) => {
+            if (!e.target.closest('.cart-dropdown')) cartWrapper.classList.toggle('active');
         });
 
-        // 3. Визуальная работа кнопок фильтра (активный класс)
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
+        // --- 3. ДОБАВЛЕНИЕ В КОРЗИНУ (Кнопки +) ---
+        const addBtns = document.querySelectorAll('.btn-add');
+        addBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.product-card');
+                const imgWrapper = card.querySelector('.card-image-wrapper');
+                const activeSizeBtn = card.querySelector('.mini-size-btn.active');
+                addToCart(imgWrapper.getAttribute('data-title'), imgWrapper.getAttribute('data-price'), imgWrapper.getAttribute('data-img'), activeSizeBtn ? activeSizeBtn.textContent : null);
+                const originalText = btn.textContent;
+                btn.textContent = '✔';
+                btn.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.transform = 'scale(1)';
+                }, 500);
+            });
+        });
+
+        // --- 4. МОДАЛЬНОЕ ОКНО (Товар и Заказ) ---
+        const modal = document.getElementById("productModal");
+        const closeBtn = document.getElementsByClassName("close-modal")[0];
+        const modalTitle = document.getElementById("modalTitle");
+        const modalPrice = document.getElementById("modalPrice");
+        const modalDesc = document.getElementById("modalDesc");
+        const modalImg = document.getElementById("modalImg");
+        const modalBody = document.querySelector('.modal-body');
+        const modalCompBlock = document.getElementById('modalCompositionBlock'); // Для добавления состава
+
+        function closeModal() {
+            modal.classList.remove("show");
+            document.body.style.overflow = "auto";
+        }
+
+        if (closeBtn) closeBtn.onclick = closeModal;
+
+        // Открытие товара (с составом)
+        document.querySelectorAll('.card-image-wrapper').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.getAttribute('data-title');
+                const price = this.getAttribute('data-price');
+                const desc = this.getAttribute('data-desc');
+                const comp = this.getAttribute('data-composition'); // Читаем состав из атрибута
+                const imgSrc = this.getAttribute('data-img');
+
+                modalTitle.textContent = title;
+                modalPrice.textContent = price;
+                modalDesc.textContent = desc;
+                modalImg.src = imgSrc;
+
+                // Удаляем старый блок состава, если он есть
+                const oldComp = modalBody.querySelector('.modal-composition');
+                if (oldComp) oldComp.remove();
+
+                // Рисуем новый блок состава
+                if (comp) {
+                    modalDesc.insertAdjacentHTML('afterend', `
+                        <div class="modal-composition active">
+                            <span class="composition-label">Состав</span>
+                            <p class="composition-text">${comp}</p>
+                        </div>
+                    `);
+                }
+
+                modal.classList.add("show");
+                document.body.style.overflow = "hidden";
+            });
+        });
+
+        // Кнопка покупки в модалке товара
+        const modalBuyBtn = document.querySelector('.btn-buy-modal');
+        if (modalBuyBtn) {
+            modalBuyBtn.addEventListener('click', () => {
+                const activeSizeBtn = document.querySelector('.size-btn.active');
+                addToCart(modalTitle.textContent, modalPrice.textContent, modalImg.src, activeSizeBtn ? activeSizeBtn.textContent : null);
+                closeModal();
+            });
+        }
+
+        // Выбор размера в модалке
+        const sizeBtns = document.querySelectorAll('.size-btn');
+        sizeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                sizeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // --- 5. ОФОРМЛЕНИЕ ЗАКАЗА ---
+        const checkoutModal = document.getElementById("checkoutModal");
+        const closeCheckoutBtn = document.getElementById("closeCheckoutBtn");
+        const openCheckoutBtn = document.querySelector(".btn-checkout");
+        const orderForm = document.getElementById("orderForm");
+
+        // Контейнеры чекаута
+        const checkoutItemsContainer = document.getElementById("checkoutItemsContainer");
+        const checkoutItemsTotalEl = document.getElementById("checkoutItemsTotal");
+        const checkoutDeliveryCostEl = document.getElementById("checkoutDeliveryCost");
+        const checkoutGrandTotalEl = document.getElementById("checkoutGrandTotal");
+        const checkoutFinalTotalEl = document.getElementById("checkoutFinalTotal");
+
+        function openCheckout() {
+            renderCheckoutItems();
+            updateCheckoutTotal();
+            checkoutModal.classList.add("show");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeCheckout() {
+            checkoutModal.classList.remove("show");
+            document.body.style.overflow = "auto";
+        }
+
+        if (openCheckoutBtn) {
+            openCheckoutBtn.addEventListener('click', openCheckout);
+        }
+
+        if (closeCheckoutBtn) {
+            closeCheckoutBtn.onclick = closeCheckout;
+        }
+
+        // Рендер товаров в чекаут
+        function renderCheckoutItems() {
+            checkoutItemsContainer.innerHTML = '';
+            cart.forEach((item) => {
+                const html = `
+                    <div class="checkout-item-preview">
+                        <img src="${item.img}" alt="${item.title}">
+                        <div class="checkout-item-details">
+                            <h4>${item.title}</h4>
+                            <p>${item.size ? `Размер: ${item.size}` : ''}</p>
+                            <p>${item.price}</p>
+                        </div>
+                    </div>
+                `;
+                checkoutItemsContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // Логика выбора доставки
+        const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
+        deliveryRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.delivery-card').forEach(c => c.classList.remove('active'));
+                radio.closest('.delivery-card').classList.add('active');
+                updateCheckoutTotal();
+            });
+        });
+
+        // Счетчик итогов
+        function updateCheckoutTotal() {
+            let itemsTotal = 0;
+            cart.forEach(item => {
+                let priceValue = parseInt(item.price.replace(/\D/g, ''));
+                itemsTotal += priceValue;
+            });
+
+            const activeDeliveryRadio = document.querySelector('input[name="delivery"]:checked');
+            const deliveryPrice = activeDeliveryRadio ? parseInt(activeDeliveryRadio.getAttribute('data-price')) : 0;
+            const grandTotal = itemsTotal + deliveryPrice;
+
+            checkoutItemsTotalEl.textContent = `${itemsTotal} ₽`;
+            checkoutDeliveryCostEl.textContent = `${deliveryPrice} ₽`;
+            checkoutGrandTotalEl.textContent = `${grandTotal} ₽`;
+            checkoutFinalTotalEl.textContent = `${grandTotal} ₽`;
+        }
+
+        if (orderForm) {
+            orderForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = orderForm.querySelector('input[type="text"]').value;
+                const phone = orderForm.querySelector('input[type="tel"]').value;
+                const inputs = orderForm.querySelectorAll('.checkout-input'); 
+                const city = inputs[2].value;
+                const address = inputs[3].value;
+                const comment = inputs[4].value;
+                const activeDeliveryRadio = document.querySelector('input[name="delivery"]:checked');
+                const deliveryMethod = activeDeliveryRadio ? activeDeliveryRadio.value : 'Не выбран';
+
+                console.log("Новый заказ:", name, phone, city, address, comment);
+                alert(`Спасибо, ${name}! Заказ на ${checkoutFinalTotalEl.textContent} оформлен.`);
+                
+                clearCart();
+                orderForm.reset();
+                closeCheckout();
+            });
+        }
+
+        // --- 6. ФИЛЬТРЫ (Главная и Каталог) ---
+        // Визуальные кнопки
+        document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Убираем активный класс у всех кнопок в этой группе
                 btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                // Добавляем нажатой
                 btn.classList.add('active');
             });
         });
 
-        // 4. Кнопки "Добавить в корзину" (Визуальный эффект)
-        const addBtns = document.querySelectorAll('.btn-add');
-        const cartBadge = document.querySelector('.cart-badge');
-        
-        addBtns.forEach(btn => {
+        // Мини-кнопки размеров
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mini-size-btn')) {
+                const siblings = e.target.parentElement.querySelectorAll('.mini-size-btn');
+                siblings.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+        });
+
+        // Футболки (Главная)
+        const tShirtsSection = document.getElementById('t-shirts');
+        if (tShirtsSection) {
+            const filterButtons = tShirtsSection.querySelectorAll('.filter-btn');
+            const productCards = tShirtsSection.querySelectorAll('.product-card');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filterType = btn.textContent.trim().toLowerCase();
+                    productCards.forEach(card => {
+                        const cardStyle = card.getAttribute('data-style');
+                        if (filterType === 'все') {
+                            card.classList.remove('hidden');
+                        } else {
+                            let mapStyle = '';
+                            if (filterType === 'мрачные') mapStyle = 'dark';
+                            if (filterType === 'милые') mapStyle = 'cute';
+                            if (filterType === 'морские') mapStyle = 'sea';
+                            if (cardStyle === mapStyle) card.classList.remove('hidden');
+                            else card.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Игрушки (Главная)
+        const toysSection = document.getElementById('toys');
+        if (toysSection) {
+            const filterButtons = toysSection.querySelectorAll('.filter-btn');
+            const productCards = toysSection.querySelectorAll('.product-card');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filterType = btn.textContent.trim().toLowerCase();
+                    productCards.forEach(card => {
+                        const cardType = card.getAttribute('data-type');
+                        if (filterType === 'все') {
+                            card.classList.remove('hidden');
+                        } else {
+                            let mapType = '';
+                            if (filterType === 'вязаные') mapType = 'knit';
+                            if (filterType === 'сшитые') mapType = 'sew';
+                            if (cardType === mapType) card.classList.remove('hidden');
+                            else card.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // --- 7. ПОЛНЫЙ КАТАЛОГ ---
+        const fullCatalog = document.getElementById('fullCatalog');
+        const closeCatalogBtn = document.getElementById('closeCatalogBtn');
+        const catalogTitle = document.getElementById('catalogPageTitle');
+        const searchInput = document.getElementById('catalogSearch');
+        const catalogGrid = document.getElementById('catalogGrid');
+
+        if (closeCatalogBtn) {
+            closeCatalogBtn.addEventListener('click', () => {
+                fullCatalog.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        // Кнопка "ℹ" (Состав) - глобально, чтобы работала даже если мы не находим кнопку в DOMContentLoaded
+        window.addToCart = addToCart; // делаем функцию глобальной для кликов
+
+        document.querySelectorAll('.btn-compose').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Чтобы не открылась корзина сразу
-                // Визуальный фидбек
-                btn.textContent = '✔';
-                setTimeout(() => {
-                    btn.textContent = '+';
-                }, 1000);
+                e.stopPropagation(); // Чтобы не открывалась картинка
+                const compText = btn.getAttribute('data-comp');
+                // Используем глобальную addToCart для упрощения, здесь нам корзина не нужна, но лучше оставить код единообразным
                 
-                // Увеличиваем счетчик (визуально)
-                let count = parseInt(cartBadge.textContent);
-                cartBadge.textContent = count + 1;
+                // Тут вызываем модалку состава вручную, так как у нас нет готового ID для этого модала в твоем HTML
+                // Чтобы сделать по уму - тебе нужно добавить id="infoModal" в HTML infoModal, как я делал в прошлом шаге.
+                // Но пока просто алерт
+                alert(`Состав: ${compText}`);
             });
         });
-    </script>
+
+        document.querySelectorAll('.view-all-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const text = btn.textContent;
+                if (text.includes('футболки')) catalogTitle.textContent = "Все футболки";
+                else if (text.includes('игрушки')) catalogTitle.textContent = "Все игрушки";
+                else if (text.includes('девайсы')) catalogTitle.textContent = "Все девайсы";
+                else catalogTitle.textContent = "Каталог";
+                
+                // 1. Копируем товары
+                const catalogGrid = document.getElementById('catalogGrid');
+                catalogGrid.innerHTML = '';
+                document.querySelectorAll('main .product-card').forEach(prod => catalogGrid.appendChild(prod.cloneNode(true)));
+                
+                fullCatalog.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Функция фильтрации каталога
+        function filterCatalog() {
+            const cards = catalogGrid.querySelectorAll('.product-card');
+            const searchText = searchInput.value.trim().toLowerCase();
+            const priceInputs = document.querySelectorAll('.price-inputs input');
+            const minPrice = parseInt(priceInputs[0].value) || 0;
+            const maxPrice = parseInt(priceInputs[1].value) || 999999;
+            const checkedStyles = Array.from(document.querySelectorAll('.checkbox-label input:not(.checkbox-category):checked')).map(cb => cb.value);
+            const checkedCategories = Array.from(document.querySelectorAll('.checkbox-category:checked')).map(cb => cb.value);
+
+            cards.forEach(card => {
+                const title = (card.querySelector('.product-title')?.textContent || '').toLowerCase().trim();
+                const desc = (card.querySelector('.product-desc')?.textContent || '').toLowerCase().trim();
+                const priceText = card.querySelector('.product-price')?.textContent || '0';
+                const itemPrice = parseInt(priceText.replace(/\D/g, '')) || 0;
+                const itemStyle = card.getAttribute('data-style');
+                const itemCategory = card.getAttribute('data-category');
+
+                const matchesSearch = title.includes(searchText) || desc.includes(searchText);
+                const matchesPrice = (itemPrice >= minPrice && itemPrice <= maxPrice);
+                let matchesStyle = true;
+                if (checkedStyles.length > 0) {
+                    matchesStyle = checkedStyles.includes(itemStyle);
+                }
+                let matchesCategory = true;
+                if (checkedCategories.length > 0) {
+                    matchesCategory = checkedCategories.includes(itemCategory);
+                }
+
+                if (matchesSearch && matchesPrice && matchesStyle && matchesCategory) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        if (searchInput) searchInput.addEventListener('input', filterCatalog);
+        document.querySelectorAll('.price-inputs input').forEach(input => input.addEventListener('input', filterCatalog));
+        document.querySelectorAll('.checkbox-label input').forEach(chk => chk.addEventListener('change', filterCatalog));
+
+        // Закрытие окон по клику вне их
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+            if (event.target == checkoutModal) closeCheckout();
+        }
+
+        // --- 8. ОФЕРТА И ПРАВИЛА (Табы) ---
+        const offerLink = document.getElementById('offerLink');
+        const offerSection = document.getElementById('offerSection');
+        const rulesLink = document.getElementById('rulesLink');
+        const infoModal = document.getElementById("infoModal");
+        const closeInfoBtn = document.getElementById("closeInfoModal");
+        const infoTabs = document.querySelectorAll('.info-tab');
+        const infoTabContents = document.querySelectorAll('.info-tab-content');
+
+        if (offerLink) offerLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            offerSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        if (closeInfoBtn) closeInfoBtn.onclick = () => {
+            infoModal.classList.remove("show");
+            document.body.style.overflow = "auto";
+        };
+
+        if (rulesLink) rulesLink.addEventListener('click', () => {
+            infoModal.classList.add("show");
+            document.body.style.overflow = "hidden";
+            infoTabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.info-tab-content').classList.remove('active'); // Скрываем контент вкладок
+        });
+
+        // Логика табов внутри модалки правил
+        infoTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                infoTabs.forEach(t => t.classList.remove('active'));
+                infoTabContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+
+    }); // Конец DOMContentLoaded
+</script>
 </body>
 </html>
