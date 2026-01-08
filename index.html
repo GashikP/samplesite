@@ -5,1297 +5,728 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pshish Store | Уютный мерч</title>
     
-    <!-- Подключение шрифтов: 'Comfortaa' для заголовков (уютный округлый) и 'Inter' для текста -->
+    <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-    <style>
-        /* --- ПЕРЕМЕННЫЕ И ТЕМЫ --- */
-        :root {
-            /* Светлая тема (Основная - Бумага/Пастель) */
-            --bg-body: #fdfbf7;
-            --bg-header: rgba(253, 251, 247, 0.95);
-            --text-main: #4a4a4a;
-            --text-muted: #7a7a7a;
-            
-            /* Цвета категорий (Пятна краски) */
-            --accent-shirts: #e8d5d5; /* Грязно-розовый */
-            --accent-toys: #d5e0e8;   /* Приглушенно-голубой */
-            --accent-devices: #dcd5e8;/* Тускло-сиреневый */
+ <style>
+    /* --- ЦВЕТОВАЯ ПАЛИТРА (ОСНОВА) --- */
+   :root {
+    /* ТЕЛА (Светло-серый фон для контраста) */
+    --bg-body: #f0f2f5;
+    
+    /* АКЦЕНТЫ */
+    --accent-shirts-grad: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    --accent-toys-grad: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    --accent-devices-grad: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
 
-            /* Элементы */
-            --card-bg: #ffffff;
-            --border-color: #e0e0e0;
-            --button-primary: #a8a8a8;
-            --button-text: #ffffff;
-            --shadow-soft: 0 10px 25px rgba(0,0,0,0.05);
-            --border-radius-card: 20px 5px 20px 5px; /* Нарисованный эффект */
-            
-            /* Рукописный акцент */
-            --font-hand: 'Comfortaa', cursive;
-            --font-body: 'Inter', sans-serif;
-        }
+    /* ЭЛЕМЕНТЫ */
+    --card-bg: #ffffff;
+    --border-color: #e5e7eb; /* Чуть темнее рамка */
+    --input-bg: #ffffff;
+    --input-border: #d1d5db;
+    --input-focus: #333333;
+    
+    /* ТЕКСТ */
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    
+    /* ТЕНИ (Усиленные для контраста) */
+    --shadow-soft: 0 25px 50px rgba(0,0,0,0.08); /* Тень глубже */
+    --shadow-hover: 0 35px 60px rgba(0,0,0,0.12);
+    --shadow-glow: 0 0 20px rgba(255, 154, 158, 0.3);
+    
+    /* ШРИФТЫ */
+    --font-hand: 'Comfortaa', cursive;
+    --font-body: 'Inter', sans-serif;
+}
 
-        /* Темная тема (Ночной уют) */
-        [data-theme="dark"] {
-            --bg-body: #1a1b20;
-            --bg-header: rgba(26, 27, 32, 0.95);
-            --text-main: #e0e0e0;
-            --text-muted: #a0a0a0;
-            
-            --accent-shirts: #2c2424; /* Темно-красный */
-            --accent-toys: #242c33;   /* Темно-синий */
-            --accent-devices: #2b2433;/* Темно-фиолетовый */
+  [data-theme="dark"] {
+    /* ФОН (Премиальный Уголь) */
+    --bg-body: linear-gradient(135deg, #18181b 0%, #000000 100%);
+    
+    /* ТЕКСТ */
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    
+    /* Акценты */
+    --accent-shirts-grad: linear-gradient(135deg, #4a181e 0%, #2d1022 100%);
+    --accent-toys-grad: linear-gradient(135deg, #1e2e56 0%, #0f1729 100%);
+    --accent-devices-grad: linear-gradient(135deg, #3a2666 0%, #281a4e 100%);
 
-            --card-bg: #25262b;
-            --border-color: #333333;
-            --button-primary: #5a5a5a;
-            --button-text: #ffffff;
-            --shadow-soft: 0 10px 25px rgba(0,0,0,0.3);
-        }
+    /* ЭЛЕМЕНТЫ */
+    --card-bg: linear-gradient(160deg, #2e3038 0%, #1f2229 100%);
+    --border-color: rgba(255,255,255,0.08); /* Рамка чуть четче */
+    
+    /* Инпуты */
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.15);
+    --input-focus: #ff9a9e;
+    
+    /* ТЕНИ */
+    --shadow-soft: 0 25px 50px rgba(0,0,0,0.6);
+    --shadow-hover: 0 35px 70px rgba(0,0,0,0.9);
+    --shadow-glow: 0 0 30px rgba(255, 154, 158, 0.2); /* Тусклое свечение */
+}
 
-        /* --- БАЗОВЫЕ СТИЛИ --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-        }
+/* --- УБИЙЦА ШУМА В ТЕМНОЙ ТЕМЕ --- */
+/* Это правило перебьет шум для боди только в темной теме */
+[data-theme="dark"] body {
+    background-image: none !important; /* Убираем точки и линии шума */
+    background-blend-mode: normal; /* Убираем режим смешивания, чтобы градиент был чистым */
+}
 
-        body {
-            font-family: var(--font-body);
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-            /* Текстура шума для эффекта бумаги/холста */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-        }
+    /* --- БАЗОВЫЕ СТИЛИ --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s ease, color 0.3s ease, transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.2s ease, box-shadow 0.3s ease; -webkit-font-smoothing: antialiased; }
 
-        a { text-decoration: none; color: inherit; }
-        ul { list-style: none; }
-        img { max-width: 100%; display: block; }
+ body {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Фон + Текстура шума */
+    background-image: 
+        var(--bg-body),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v-2h4v-2zm-4 0V22h-4v4h-4v2h4v-2h4v-2zm-4 0v-4h-2v4h-4v2h4v-2h-4v-2zm-4 0v-4h-2v4h-4v2h4v-2h-4v-2zm-4 0v-4h-2v4h-4v2h4v-2h-4v-2zm-4 0v-4h-2v4h-4v2h4v-2h-4v-2zm-4 0V14h-2v4h-4v2h4v-2h-4v-2zm-4 0V14h-2v4h-4v2h4v-2h-4v-2zm-4 0V10h-2v4h-4v2h4v-2h-4v-2zm-4 0V10h-2v4h-4v2h4v-2h-4v-2zm-4 0V10h-2v4h-4v2h4v-2h-4v-2zm-4 0V10h-2v4h-4v2h4v-2h-4v-2zm-4 0V6h-2v4h-4v2h4v-2h-4v-2zm-4 0V6h-2v4h-4v2h4v-2h-4v-2zm-4 0V6h-2v4h-4v2h4v-2h-4v-2zm-4 0V6h-2v4h-4v2h4v-2h-4v-2z'/%3E%3C/g%3E%3C/svg%3E"), 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    
+}
 
-        /* --- ШАПКА (HEADER) --- */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--bg-header);
-            backdrop-filter: blur(5px);
-            border-bottom: 2px dashed var(--border-color);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    /* Стилизация скроллбара */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-main); }
 
-        .logo {
-            font-family: var(--font-hand);
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            position: relative;
-        }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    img { max-width: 100%; display: block; }
+
+    /* --- ШАПКА (Header) --- */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--card-bg);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1rem 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .logo {
+        font-family: var(--font-hand);
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        position: relative;
+        color: var(--text-main);
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    }
+    .logo::after { content: '.'; color: #ff9a9e; margin-left: -2px; }
+
+    nav ul { display: flex; gap: 2rem; }
+    nav a {
+        font-family: var(--font-hand);
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        position: relative;
+        transition: color 0.2s;
+    }
+    nav a::after {
+        content: '';
+        position: absolute;
+        width: 0; height: 2px; bottom: -4px; left: 50%;
+        background: linear-gradient(90deg, #ff9a9e, #a6c1ee);
+        transition: all 0.3s; transform: translateX(-50%);
+    }
+    nav a:hover { color: var(--text-main); }
+    nav a:hover::after { width: 100%; }
+
+    .header-controls { display: flex; align-items: center; gap: 1.5rem; }
+    .theme-toggle { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-main); transition: transform 0.4s; }
+    .theme-toggle:hover { transform: rotate(20deg) scale(1.1); }
+
+    /* --- КОРЗИНА --- */
+    .cart-wrapper { position: relative; cursor: pointer; }
+    .cart-icon { font-size: 1.4rem; color: var(--text-main); }
+    
+    .cart-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        z-index: 10;
+    }
+
+    .cart-badge {
+        position: absolute; top: -2px; right: -6px; background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+        color: white; font-size: 0.7rem; font-weight: 700; width: 20px; height: 20px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: var(--shadow-glow); border: 2px solid white;
+        z-index: 20;
+    }
+    @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+    .cart-dropdown {
+        position: absolute;
+        top: calc(100% + 20px);
+        right: 0;
+        width: 340px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px 4px 20px 4px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-hover);
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        animation: fadeIn 0.2s ease-out;
+        backdrop-filter: blur(10px);
+        z-index: 50;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .cart-wrapper:hover .cart-dropdown, .cart-wrapper.active .cart-dropdown { display: flex; }
+
+    .cart-item { display: flex; gap: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-color); align-items: center; }
+    .cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+    .cart-item-remove { margin-left: auto; background: none; border: none; color: #ff9a9e; cursor: pointer; font-size: 1.4rem; padding: 0 5px; transition: transform 0.2s; }
+    .cart-item-remove:hover { transform: scale(1.2); color: #ff5f5f; }
+    .cart-total { font-weight: 700; text-align: right; margin-top: 10px; font-size: 1.1rem; color: var(--text-main); }
+
+    .btn-checkout {
+        background: var(--text-main);
+        color: var(--bg-body);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 12px;
+        width: 100%;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    /* --- HERO --- */
+    .hero { text-align: center; padding: 5rem 1rem; max-width: 800px; margin: 0 auto; }
+    .hero h1 { font-family: var(--font-hand); font-size: 3rem; margin-bottom: 1rem; line-height: 1.1; letter-spacing: -1px; color: var(--text-main); }
+    .hero p { color: var(--text-muted); font-size: 1.1rem; letter-spacing: 0.02em; }
+
+    /* --- СЕКЦИИ --- */
+    section { padding: 5rem 5%; position: relative; overflow: visible; }
+    
+    .section-t-shirts { background: linear-gradient(to right, #f7aaaa, #ffbbd3); border-radius: 30px; margin: 1rem 5%; box-shadow: inset 0 0 50px rgba(255, 154, 158, 0.05); transition: all 0.5s; }
+    .section-toys { background: linear-gradient(to right, #ca86b9, #d6e1f7); border-radius: 30px; margin: 1rem 5%; box-shadow: inset 0 0 50px rgba(161, 196, 253, 0.05); transition: all 0.5s; }
+    .section-devices { background: linear-gradient(to right, #b9e8ee, #fdf0ff); border-radius: 30px; margin: 1rem 5%; box-shadow: inset 0 0 50px rgba(251, 194, 235, 0.05); transition: all 0.5s; }
+
+    [data-theme="dark"] .section-t-shirts { background: linear-gradient(to right, #1a1a1a, #151313); box-shadow: inset 0 0 50px rgba(255, 107, 107, 0.1); }
+    [data-theme="dark"] .section-toys { background: linear-gradient(to right, #1a1a1b, #11141b); box-shadow: inset 0 0 50px rgba(107, 143, 188, 0.1); }
+    [data-theme="dark"] .section-devices { background: linear-gradient(to right, #1a1a1b, #14131a); box-shadow: inset 0 0 50px rgba(163, 130, 175, 0.1); }
+
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1.5rem; }
+    .section-title { font-family: var(--font-hand); font-size: 2.2rem; position: relative; display: inline-block; background: linear-gradient(45deg, var(--text-main), #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .filters { display: flex; gap: 10px; background: rgba(255,255,255,0.4); padding: 5px 5px 5px 15px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .filter-btn { background: none; border: none; cursor: pointer; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-body); padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+    .filter-btn.active, .filter-btn:hover { background: var(--card-bg); color: var(--text-main); box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-weight: 600; }
+
+    /* --- СЕТКА ТОВАРОВ --- */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2.5rem; }
+
+    .product-card {
+        background: var(--card-bg);
+        border-radius: 30px 8px 30px 8px;
+        border: 1px solid rgba(0,0,0,0.03);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .product-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: var(--shadow-hover); }
+
+    .card-image-wrapper { position: relative; padding-top: 100%; overflow: hidden; background: #f0f0f0; }
+    .card-image-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0; }
+    .product-card:hover .card-image-wrapper img { transform: scale(1.1) rotate(1deg); opacity: 1; }
+
+    .skeleton { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 2s infinite; opacity: 1; transition: opacity 0.3s; }
+    .skeleton.fadeOut { opacity: 0; transition: opacity 0.5s ease; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .style-tag { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.9); padding: 4px 12px; font-size: 0.75rem; border-radius: 20px; font-weight: 700; color: var(--text-main); backdrop-filter: blur(8px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+    .product-title { font-family: var(--font-hand); font-size: 1.15rem; margin-bottom: 0.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+    .product-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
+
+    .card-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-weight: 600; font-size: 1.1rem; color: var(--text-main); }
+
+    .mini-size-selector { display: flex; gap: 8px; margin-top: 8px; }
+    .mini-size-btn { width: 30px; height: 30px; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .mini-size-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+    .mini-size-btn.active { background: var(--text-main); color: var(--bg-body); border-color: var(--text-main); }
+
+    .btn-add { background: var(--text-main); color: var(--bg-body); border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .btn-add:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+    .view-all-btn { display: block; margin: 3rem auto 0; padding: 12px 40px; background: transparent; border: 2px solid var(--text-main); color: var(--text-main); font-family: var(--font-body); font-weight: 700; font-size: 1rem; border-radius: 30px; cursor: pointer; transition: all 0.3s; }
+    .view-all-btn:hover { background: var(--text-main); color: var(--bg-body); transform: translateY(-2px); }
+
+    /* --- FOOTER --- */
+    footer { background: var(--bg-body); padding: 4rem 5%; text-align: center; border-top: 2px dashed var(--border-color); margin-top: 2rem; }
+    .footer-content h3 { font-family: var(--font-hand); margin-bottom: 1rem; }
+    .social-links { display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0; }
+    .social-links a { font-size: 1.5rem; opacity: 0.6; transition: all 0.3s; display: inline-block; }
+    .social-links a:hover { opacity: 1; transform: translateY(-3px); }
+    .contact-info { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+    @media (max-width: 768px) {
+        header { flex-direction: column; gap: 1rem; padding: 1rem; }
+        nav ul { gap: 1rem; font-size: 0.9rem; justify-content: center; flex-wrap: wrap; }
+        .hero h1 { font-size: 2.2rem; }
+        .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1.5rem; }
+        section { border-radius: 0; margin: 0; padding: 3rem 5%; }
+    }
+
+    /* --- МОДАЛКИ --- */
+    .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(8px); align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+
+    .modal-content {
+        background-color: var(--card-bg);
+        width: 90%;
+        max-width: 900px;
+        border-radius: 30px 4px 30px 4px;
+        position: relative;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        display: flex;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    @keyframes modalSlideUp { from { transform: translateY(40px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+    .modal-body { display: flex; flex-direction: row; height: 600px; }
+    .modal-gallery { flex: 0 0 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .modal-gallery img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-info { flex: 0 0 50%; padding: 3rem; display: flex; flex-direction: column; overflow-y: auto; }
+    
+    .modal-title { font-family: var(--font-hand); font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.1; }
+    .modal-price { font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .modal-desc { color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.7; font-size: 1rem; }
+
+    .modal-composition { background: var(--bg-body); padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid var(--border-color); display: none; }
+    .modal-composition.active { display: block; }
+    .composition-label { font-size: 0.8rem; text-transform: uppercase; color: #888; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.5px; }
+    .composition-text { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; white-space: pre-wrap; font-family: 'Inter', sans-serif; }
+
+    .size-selector { margin-bottom: auto; margin-top: auto; }
+    .selector-label { font-weight: 600; margin-bottom: 0.8rem; display: block; margin-top: 1rem; color: var(--text-main); font-size: 0.9rem; }
+    .sizes { display: flex; gap: 12px; }
+    .size-btn { width: 45px; height: 45px; border: 2px solid var(--border-color); background: transparent; border-radius: 10px; cursor: pointer; font-weight: 600; color: var(--text-main); transition: all 0.2s; }
+    .size-btn:hover { border-color: var(--text-main); background: var(--bg-body); }
+    .size-btn.active { background: var(--text-main); color: var(--bg-body); border-color: var(--text-main); }
+
+    .btn-buy-modal { margin-top: auto; background: var(--text-main); color: var(--bg-body); border: none; padding: 16px; border-radius: 12px; font-family: var(--font-hand); font-size: 1.2rem; cursor: pointer; transition: transform 0.2s; width: 100%; font-weight: 700; }
+    .btn-buy-modal:hover { transform: scale(1.02); background: #000; }
+
+    .close-modal { position: absolute; top: 20px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--text-main); background: rgba(0,0,0,0.05); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .close-modal:hover { background: rgba(0,0,0,0.1); }
+
+    .hidden { display: none !important; }
+
+    /* --- ПОЛНЫЙ КАТАЛОГ --- */
+    .catalog-overlay {
+        position: fixed;
+        top: 85px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 85px);
+        background-color: var(--bg-body);
+        z-index: 2000;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: none; 
+    }
+    
+    .catalog-header {
+        background: var(--card-bg);
+        padding: 1rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    .btn-back { background: transparent; border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-family: var(--font-hand); transition: all 0.2s; }
+    .btn-back:hover { background: var(--border-color); }
+
+    .catalog-container { display: flex; max-width: 1200px; margin: 0 auto; width: 100%; padding: 2rem; gap: 2rem; flex: 1; }
+    .catalog-sidebar { width: 280px; flex-shrink: 0; background: var(--card-bg); padding: 2rem; border-radius: 20px; height: fit-content; border: 1px solid var(--border-color); box-shadow: var(--shadow-soft); }
+    
+    .filter-group { margin-bottom: 25px; }
+    .filter-group label { display: block; font-weight: 600; margin-bottom: 10px; color: var(--text-main); font-size: 0.95rem; }
+    
+    #catalogSearch { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-body); color: var(--text-main); transition: all 0.3s; font-family: var(--font-body); }
+    #catalogSearch:focus { outline: none; border-color: var(--text-main); background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+    
+    .price-inputs { display: flex; gap: 10px; }
+    .price-inputs input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-body); color: var(--text-main); transition: all 0.3s; font-family: var(--font-body); }
+    
+    .checkbox-label { display: flex; align-items: center; gap: 10px; font-weight: 500; margin-bottom: 8px; cursor: pointer; color: var(--text-muted); }
+    .checkbox-label input:checked + span { color: var(--text-main); font-weight: 600; }
+
+    .catalog-content { flex: 1; }
+    .catalog-content .products-grid { gap: 1.5rem; }
+
+   /* --- CHECKOUT REFF STYLE (Исправлено + Защищено от конфликтов) --- */
+.checkout-modal .modal-content { border-radius: 20px 4px 20px 4px; box-shadow: 0 30px 80px rgba(0,0,0,0.1); }
+.checkout-modal .modal-body { padding: 0; overflow-y: auto; max-height: 90vh;}
+    
+.checkout-section { padding: 2.5rem; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.checkout-section:last-child { border-bottom: none; }
+
+.section-title-mini { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 1.5rem; font-weight: 700; }
+
+.form-row { display: flex; gap: 1rem; }
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 0.8rem; font-size: 0.9rem; color: var(--text-main); }
+.form-input { width: 100%; padding: 16px 20px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 16px; font-family: var(--font-body); font-size: 1rem; transition: all 0.3s; }
+.form-input:focus { outline: none; border-color: var(--input-focus); background: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+textarea.form-input { resize: vertical; line-height: 1.5; }
+
+/* --- ГРАММКИ ДОСТАВКИ (Grid + Flex + Scoped Classes) --- */
+.delivery-options { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 1.5rem; 
+}
+
+.delivery-card { 
+    position: relative; 
+    cursor: pointer; 
+    border: 2px solid var(--border-color); 
+    border-radius: 16px; 
+    overflow: hidden; 
+    display: block; 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    height: 100%; /* Карточка занимает всю высоту ячейки сетки */
+}
+
+/* Скрытая радио-кнопка */
+.delivery-card input[type="radio"] { 
+    position: absolute; 
+    opacity: 0; 
+    width: 0; 
+    height: 0; 
+}
+
+/* Scoped: КОНТЕНТ ВНУТРИ КАРТОЧКИ (Стили применяются только к delivery-card) */
+.delivery-card .card-content { 
+    display: flex; 
+    align-items: center; /* Центрируем по вертикали */
+    padding: 1.2rem 1rem; 
+    background: var(--bg-body); 
+    transition: background 0.2s, transform 0.2s;
+    height: 100%; /* Растягиваем на всю высоту карточки */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Scoped: АКТИВНАЯ КАРТОЧКА */
+.delivery-card.active { 
+    border-color: var(--input-focus); /* Розовая рамка */
+    background: #fff; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
+    transform: translateY(-2px); /* Легкое поднимание */
+}
+
+/* Scoped: ТЕКСТ ВНУТРИ КАРТОЧКИ */
+/* Используем .delivery-card чтобы не трогать другие блоки */
+.delivery-card .card-icon { 
+    font-size: 2rem; 
+    margin-right: 1.2rem; 
+    flex-shrink: 0; /* Запрещаем сжимать иконку */
+    display: flex;
+    align-items: center;
+}
+
+.delivery-card .card-info { 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; /* Центрируем текст */
+    flex-grow: 1; /* Текст занимает все место */
+}
+
+.delivery-card .card-name { 
+    font-weight: 700; 
+    font-size: 1rem; 
+    color: var(--text-main); 
+    margin-bottom: 0.2rem; 
+    line-height: 1.2;
+    white-space: nowrap; /* Запрещаем перенос */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.delivery-card .card-desc { 
+    font-size: 0.8rem; 
+    color: var(--text-muted); 
+    margin-bottom: 0.1rem; 
+    line-height: 1.1;
+}
+.delivery-card .card-price { 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    color: var(--text-main); 
+    flex-shrink: 0; /* Запрещаем сжимать цену */
+}
+
+
+/* --- ОСТАЛЬНОЕ ЭЛЕМЕНТЫ ЧЕКАУТА --- */
+
+.checkout-subtotal { 
+    background: var(--bg-body); 
+    padding: 1.5rem; 
+    border-radius: 12px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.8rem; 
+    margin-bottom: 1.5rem; 
+    border: 1px solid var(--border-color);
+}
+.checkout-subtotal span { display: flex; justify-content: space-between; font-size: 0.9rem; color: #666; }
+
+.checkout-items-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.8rem; 
+    margin-bottom: 1rem; 
+}
+.checkout-item-preview { 
+    display: flex; 
+    gap: 1rem; 
+    align-items: center; 
+    padding-bottom: 0.8rem; 
+    border-bottom: 1px dashed rgba(0,0,0,0.1); 
+}
+.checkout-item-preview img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+.checkout-item-details h4 { font-size: 1rem; margin-bottom: 0.2rem; color: var(--text-main); }
+.checkout-item-details p { font-size: 0.85rem; color: #888; }
+
+.checkout-footer { 
+    position: sticky; 
+    bottom: 0; 
+    background: var(--card-bg); 
+    padding: 1.5rem; 
+    border-top: 1px solid rgba(0,0,0,0.06); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.05); 
+}
+.final-total { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+.final-total span { color: #ff9a9e; font-size: 1.6rem; margin-left: 5px; }
+
+.btn-checkout-big { 
+    background: var(--text-main); 
+    color: var(--bg-body); 
+    border: none; 
+    padding: 14px 2rem; 
+    font-size: 1rem; 
+    border-radius: 30px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    width: 100%; 
+    transition: transform 0.2s; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.btn-checkout-big:hover { transform: translateY(-2px); background: #000; }
+
+/* --- ТЕМНАЯ ТЕМА ДЛЯ ДОСТАВКИ (Только Scoped) --- */
+[data-theme="dark"] .delivery-card .card-name { color: #ffffff; font-weight: 700; }
+[data-theme="dark"] .delivery-card .card-desc { color: #cccccc; }
+[data-theme="dark"] .delivery-card .card-price { color: #ff9a9e; }
+[data-theme="dark"] .delivery-card.active { background: #2d2e35; border-color: #ff9a9e; }
+
+    /* --- OFFER (Исправлено: background вместо background-color) --- */
+    .offer-section { padding: 5rem 5%; background: var(--bg-body); text-align: center; }
+    .offer-content h2 { font-family: var(--font-hand); font-size: 2.2rem; margin-bottom: 1rem; }
+    .offer-scroll-box { background: var(--card-bg); padding: 2.5rem; border-radius: 20px 4px 20px 4px; box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); max-height: 400px; overflow-y: auto; text-align: left; margin: 1.5rem auto 0; }
+
+    /* --- INFO MODAL --- */
+    .info-modal .modal-content { background: var(--card-bg); max-width: 700px; border-radius: 20px 4px 20px 4px; }
+    .info-modal .modal-body { padding: 2.5rem; overflow-y: auto; max-height: 80vh; }
+    .info-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .info-tab { background: none; border: none; padding: 0.8rem 1.5rem; border-radius: 12px 12px 0 0; cursor: pointer; font-family: var(--font-body); font-weight: 600; color: #999; transition: all 0.3s; }
+    .info-tab:hover { background: var(--bg-body); color: var(--text-main); }
+    .info-tab.active { background: var(--text-main); color: #fff; }
+    
+    .info-tab-content { display: none; padding-bottom: 1rem; animation: fadeIn 0.3s ease; }
+    .info-tab-content.active { display: block; }
+    .info-tab-content h3 { font-family: var(--font-hand); margin-bottom: 0.8rem; font-size: 1.3rem; color: var(--text-main); }
+    .info-tab-content ul li { margin-bottom: 0.8rem; color: var(--text-muted); line-height: 1.8; list-style-type: disc; padding-left: 1.2rem; }
+
+
+    /* --- КНОПКА СОСТАВА --- */
+    .btn-compose {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #888;
+        margin-right: 8px;
+        transition: color 0.2s, transform 0.2s;
+    }
+    .btn-compose:hover { 
+        color: #ff9a9e; 
+        transform: scale(1.1);
+    }
+
+    /* --- ЧЕКАУТ В ТЕМНОЙ ТЕМЕ --- */
+    [data-theme="dark"] .checkout-modal .modal-content { background-color: #121214; border: 1px solid #333; }
+    [data-theme="dark"] .checkout-modal .modal-body { background-color: #221e1e !important; }
+    [data-theme="dark"] .checkout-section { background-color: #1e1e22; border-bottom: 1px solid #333333; }
+    [data-theme="dark"] .form-input { background-color: #25262b; border: 1px solid #444444; color: #e0e0e0; }
+    [data-theme="dark"] .form-input:focus { background-color: #2d2e35; border-color: #ff9a9e; color: #ffffff; box-shadow: 0 0 0 3px rgba(255, 154, 158, 0.15); }
+    [data-theme="dark"] .delivery-card .card-content { background-color: #25262b; }
+    [data-theme="dark"] .delivery-card.active { background-color: #2d2e35; border-color: #ff9a9e; }
+    [data-theme="dark"] .delivery-card.active .card-name { color: #ff9a9e; }
+    [data-theme="dark"] .checkout-subtotal { background-color: #1e1e22; }
+    [data-theme="dark"] .checkout-footer { background-color: #1a1b20; border-top: 1px solid #333333; }
+    [data-theme="dark"] .checkout-subtotal span,
+    [data-theme="dark"] .checkout-item-details h4,
+    [data-theme="dark"] .checkout-item-details p,
+    [data-theme="dark"] .section-title-mini { color: #cccccc; }
+
+
+    /* --- СИЛА (Чекаут) --- */
+    [data-theme="dark"] .checkout-modal .modal-content { background-color: #000000 !important; border: 1px solid #333 !important; }
+    [data-theme="dark"] .checkout-modal .modal-body { background-color: #221e1e !important; }
+    [data-theme="dark"] .checkout-modal .checkout-section { background-color: #272424 !important; border-bottom: 1px solid #333 !important; }
+    [data-theme="dark"] .checkout-modal .checkout-subtotal,
+    [data-theme="dark"] .checkout-modal .cart-item-preview { background-color: #302323 !important; }
+    [data-theme="dark"] .checkout-modal .checkout-footer { background-color: #000000 !important; border-top: 1px solid #333 !important; }
+
+
+    /* --- ULTIMATE DARK THEME (Универсальный) --- */
+    [data-theme="dark"] {
+        --bg-body: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+        --text-main: #ffffff;
+        --text-muted: #aaaaaa;
+        --accent-shirts-grad: linear-gradient(135deg, #4a181e 0%, #2d1022 100%);
+        --accent-toys-grad: linear-gradient(135deg, #1e2e56 0%, #0f1729 100%);
+        --accent-devices-grad: linear-gradient(135deg, #3a2666 0%, #281a4e 100%);
+        --card-bg: linear-gradient(160deg, #2e3038 0%, #1f2229 100%);
+        --border-color: rgba(255,255,255,0.05);
+        --input-bg: rgba(255, 255, 255, 0.05);
+        --input-border: rgba(255, 255, 255, 0.1);
+        --input-focus: #ff9a9e;
+        --shadow-soft: 0 25px 50px rgba(0,0,0,0.6);
+        --shadow-hover: 0 35px 70px rgba(0,0,0,0.9);
+        --shadow-glow: 0 0 30px rgba(255, 154, 158, 0.2);
+    }
+
+    /* --- Секции в темной теме --- */
+    [data-theme="dark"] .section-t-shirts { background: linear-gradient(to bottom right, #000000, #251111); box-shadow: inset 0 0 80px rgba(255, 107, 107, 0.1); }
+    [data-theme="dark"] .section-toys { background: linear-gradient(to bottom right, #000000, #151528); box-shadow: inset 0 0 80px rgba(107, 114, 128, 0.1); }
+    [data-theme="dark"] .section-devices { background: linear-gradient(to bottom right, #000000, #1e1121); box-shadow: inset 0 0 80px rgba(158, 130, 160, 0.1); }
+
+    /* --- Карты товаров --- */
+    [data-theme="dark"] .product-card { border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    [data-theme="dark"] .product-card:hover { box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: translateY(-10px) scale(1.03); border-color: rgba(255,255,255,0.2); }
+
+    /* --- Кнопки --- */
+    [data-theme="dark"] .btn-add { background: linear-gradient(135deg, #333, #555); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+    [data-theme="dark"] .btn-add:hover { background: linear-gradient(135deg, #ff9a9e, #fad0c4); box-shadow: 0 0 20px rgba(255, 154, 158, 0.6); }
+    [data-theme="dark"] .btn-checkout { background: linear-gradient(90deg, #ff9a9e, #fad0c4); box-shadow: 0 10px 25px rgba(255, 154, 158, 0.4); }
+    [data-theme="dark"] .btn-checkout:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255, 154, 158, 0.6); }
+    [data-theme="dark"] .btn-buy-modal { background: linear-gradient(135deg, #ff9a9e, #ff6b6b); box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5); }
+    [data-theme="dark"] .btn-buy-modal:hover { background: linear-gradient(135deg, #ff6b6b, #ff9a9e); }
+    [data-theme="dark"] .btn-checkout-big { background: linear-gradient(90deg, #4a181e, #2d1022); box-shadow: 0 10px 25px rgba(74, 24, 30, 0.4); }
+    [data-theme="dark"] .btn-checkout-big:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(74, 24, 30, 0.6); }
+
+    /* --- Модалки --- */
+    [data-theme="dark"] .modal { background-color: rgba(0,0,0,0.7); backdrop-filter: blur(10px); }
+    [data-theme="dark"] .modal-content { background: linear-gradient(160deg, #2e3038 0%, #1f2229 100%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 90px rgba(0,0,0,0.6); }
+    [data-theme="dark"] header { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    [data-theme="dark"] footer { background: linear-gradient(to top, #0f0f0f, #000); }
+    [data-theme="dark"] .catalog-overlay { background: linear-gradient(135deg, #121212 0%, #0a0a0a 100%); }
+    [data-theme="dark"] .catalog-header { background: linear-gradient(160deg, #2e3038 0%, #1f2229 100%); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+
+    /* --- ГЛАВНАЯ ПОПРАВКА (ПРИНУДИТЕЛЬНАЯ) --- */
+    /* Это правило в самом конце перебьет все остальные, даже если где-то в коде остался background-color */
+    [data-theme="dark"] body {
+        /* 1. Универсальный фон (где и цвет, и картинка) */
+        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
         
-        .logo::after {
-            content: '.';
-            color: #ff9a9e; /* Акцент цвета */
-        }
-
-        nav ul {
-            display: flex;
-            gap: 2rem;
-        }
-
-        nav a {
-            font-family: var(--font-hand);
-            font-size: 1.1rem;
-            position: relative;
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 50%;
-            background-color: currentColor;
-            transition: all 0.3s;
-            transform: translateX(-50%);
-        }
-
-        nav a:hover::after { width: 100%; }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        /* Кнопка темы */
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--text-main);
-        }
-
-        /* Корзина */
-        .cart-wrapper {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .cart-icon {
-            font-size: 1.4rem;
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -8px;
-            background-color: #ff9a9e;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-body);
-        }
-
-        /* Выпадающая корзина */
-       .cart-dropdown {
-            position: absolute;
-            top: 100%; /* Прижимаем окно вплотную к низу иконки */
-            right: 0;
-            width: 300px;
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 15px;
-            padding: 1rem; /* Стандартный отступ внутри */
-            padding-top: 15px; /* Увеличиваем верхний отступ до 15px */
-            box-shadow: var(--shadow-soft);
-            display: none; /* Скрыто по умолчанию */
-            flex-direction: column;
-            gap: 10px;
-            
-            /* ВАЖНО: Убираем margin-top, чтобы не было разрыва */
-            margin-top: 0; 
-            
-            /* Анимация для красоты (опционально) */
-            animation: fadeIn 0.2s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .cart-wrapper:hover .cart-dropdown,
-        .cart-wrapper.active .cart-dropdown {
-            display: flex;
-        }
-
-        .cart-item {
-            display: flex;
-            gap: 10px;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 10px;
-        }
+        /* 2. Убираем белую текстуру (шум), чтобы не мешала градиенту */
+        background-image: none !important;
         
-        .cart-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .cart-total {
-            font-weight: bold;
-            text-align: right;
-            margin-top: 10px;
-        }
-
-        .btn-checkout {
-            background: var(--button-primary);
-            color: var(--button-text);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 10px;
-            width: 100%;
-            cursor: pointer;
-            font-family: var(--font-hand);
-        }
-
-        /* --- HERO SECTION --- */
-        .hero {
-            text-align: center;
-            padding: 4rem 1rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-family: var(--font-hand);
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        /* --- СЕКЦИИ И ФИЛЬТРЫ --- */
-        section {
-            padding: 4rem 5%;
-            position: relative;
-        }
-
-        /* Фоны-пятна для секций */
-        .section-t-shirts { background-color: var(--accent-shirts); }
-        .section-toys { background-color: var(--accent-toys); }
-        .section-devices { background-color: var(--accent-devices); }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .section-title {
-            font-family: var(--font-hand);
-            font-size: 2rem;
-            position: relative;
-            display: inline-block;
-        }
-        
-        /* Эффект подчеркивания от руки */
-        .section-title::before {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            left: -5px;
-            right: -5px;
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.4);
-            z-index: -1;
-            border-radius: 10px;
-        }
-
-        /* Визуальные фильтры */
-        .filters {
-            display: flex;
-            gap: 10px;
-            background: rgba(255,255,255,0.3);
-            padding: 5px 15px;
-            border-radius: 30px;
-            border: 1px solid var(--border-color);
-        }
-
-        .filter-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-family: var(--font-body);
-            padding: 5px 10px;
-            border-radius: 15px;
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--card-bg);
-            color: var(--text-main);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* --- СЕТКА ТОВАРОВ --- */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .product-card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius-card);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: var(--shadow-soft);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-image-wrapper {
-            position: relative;
-            padding-top: 100%; /* Квадрат 1:1 */
-            overflow: hidden;
-            background: #f0f0f0;
-        }
-
-        .card-image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-
-        .product-card:hover .card-image-wrapper img {
-            transform: scale(1.05);
-        }
-
-        .style-tag {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255,255,255,0.8);
-            padding: 4px 10px;
-            font-size: 0.75rem;
-            border-radius: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-            backdrop-filter: blur(3px);
-        }
-
-        .card-content {
-            padding: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .product-title {
-            font-family: var(--font-hand);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .product-desc {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-footer {
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .product-price {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .btn-add {
-            background: var(--text-main);
-            color: var(--bg-body);
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: transform 0.2s;
-        }
-
-        .btn-add:hover {
-            transform: scale(1.1) rotate(90deg);
-        }
-
-        .view-all-btn {
-            display: block;
-            margin: 3rem auto 0;
-            padding: 10px 30px;
-            background: transparent;
-            border: 2px solid var(--text-main);
-            color: var(--text-main);
-            font-family: var(--font-hand);
-            font-size: 1.1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .view-all-btn:hover {
-            background: var(--text-main);
-            color: var(--bg-body);
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            background: var(--bg-body);
-            padding: 3rem 5%;
-            text-align: center;
-            border-top: 2px dashed var(--border-color);
-            margin-top: 2rem;
-        }
-
-        .footer-content h3 {
-            font-family: var(--font-hand);
-            margin-bottom: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin: 1.5rem 0;
-        }
-
-        .social-links a {
-            font-size: 1.5rem;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-
-        .social-links a:hover { opacity: 1; }
-
-        .contact-info {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            nav ul {
-                gap: 1rem;
-                font-size: 0.9rem;
-            }
-
-            .hero h1 { font-size: 2rem; }
-            
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .filters {
-                width: 100%;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-        }
-
-        /* --- МОДАЛЬНОЕ ОКНО --- */
-        .modal {
-            display: none; /* Скрыто по умолчанию */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.6); /* Затемнение фона */
-            backdrop-filter: blur(4px); /* Эффект матового стекла */
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Активация окна */
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            width: 90%;
-            max-width: 900px; /* Шире, чтобы влез состав */
-            border-radius: 20px;
-            position: relative;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease-out;
-            overflow: hidden;
-            display: flex; /* Добавил flex для выравнивания колонок */
-        }
-
-        .modal-body {
-            display: flex;
-            flex-direction: row; /* Рядом: фото и текст */
-            height: 600px; /* Фиксированная высота, чтобы можно было скролить */
-        }
-
-        /* Левая часть (Фото) */
-        .modal-gallery {
-            flex: 0 0 50%; /* Занимаем ровно 50% ширины */
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .modal-gallery img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Правая часть (Инфо) */
-        .modal-info {
-            flex: 0 0 50%; /* Занимаем остальные 50% */
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto; /* Если описания длинные, можно прокрутить */
-        }
-
-        .modal-title {
-            font-family: var(--font-hand);
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-price {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-desc {
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        /* Новый блок: Состав */
-        .modal-composition {
-            background: #fdfbf7; /* Легкий акцент */
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-            display: none; /* Скрыт по умолчанию */
-        }
-        
-        .modal-composition.active {
-            display: block;
-        }
-
-        .composition-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 0.3rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .composition-text {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            line-height: 1.5;
-            white-space: pre-wrap; /* Сохраняет переносы строк, если они есть в HTML */
-        }
-
-        /* Селектор размеров */
-        .size-selector {
-            margin-bottom: auto; /* Прижимается к низу */
-            margin-top: auto; /* Отодвигаем от описания */
-        }
-
-        .selector-label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
-            margin-top: 1rem;
-        }
-
-        .sizes {
-            display: flex;
-            gap: 10px;
-        }
-
-        .size-btn {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        .size-btn:hover {
-            border-color: var(--text-main);
-        }
-
-        .size-btn.active {
-            background: var(--text-main);
-            color: var(--bg-body);
-            border-color: var(--text-main);
-        }
-
-        /* Кнопка покупки в модалке */
-        .btn-buy-modal {
-            margin-top: auto; /* Прижимает кнопку к низу */
-            background: var(--text-main);
-            color: var(--bg-body);
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-family: var(--font-hand);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-            width: 100%;
-        }
-
-        .btn-buy-modal:hover {
-            transform: scale(1.02);
-            background: #000;
-        }
-
-        /* Мобильная версия для модалки */
-        @media (max-width: 768px) {
-            .modal-body {
-                flex-direction: column;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-            .modal-gallery {
-                height: 300px;
-                flex: none;
-            }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--text-main);
-            z-index: 10;
-        }
-
-        /* Класс для скрытия товаров при фильтрации */
-        .hidden {
-            display: none !important;
-        }
-
-        .cart-item-remove {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: #ff6b6b;
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0 5px;
-            transition: transform 0.2s;
-        }
-
-        .cart-item-remove:hover {
-            transform: scale(1.2);
-            color: red;
-        }
-
-        /* --- СТРАНИЦА ПОЛНОГО КАТАЛОГА --- */
-        .catalog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-body);
-            z-index: 2000; /* Поверх всего сайта */
-            overflow-y: auto; /* Скролл внутри страницы */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .catalog-header {
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: var(--font-hand);
-        }
-
-        .btn-back:hover { background: var(--border-color); }
-
-        /* Контейнер: Сайдбар + Сетка */
-        .catalog-container {
-            display: flex;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 2rem;
-            gap: 2rem;
-            flex: 1;
-        }
-
-        /* Боковая панель */
-        .catalog-sidebar {
-            width: 250px;
-            flex-shrink: 0;
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 20px;
-            height: fit-content;
-            border: 1px solid var(--border-color);
-        }
-
-        .filter-group {
-            margin-bottom: 20px;
-        }
-
-        .filter-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        #catalogSearch {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-body);
-            color: var(--text-main);
-        }
-
-        .price-inputs {
-            display: flex;
-            gap: 10px;
-        }
-
-        .price-inputs input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-body);
-            color: var(--text-main);
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 400;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-
-        .btn-apply-filters {
-            width: 100%;
-            padding: 10px;
-            background: var(--text-main);
-            color: var(--bg-body);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        /* Сетка товаров в каталоге */
-        .catalog-content {
-            flex: 1;
-        }
-
-        /* Мобильная версия каталога */
-        @media (max-width: 768px) {
-            .catalog-container {
-                flex-direction: column;
-            }
-            .catalog-sidebar {
-                width: 100%;
-            }
-        }
-
-        /* --- СТИЛИ ДЛЯ КАТАЛОГА (КОМПАКТНЫЕ КАРТОЧКИ) --- */
-
-        /* 1. Сетка в каталоге делаем плотнее и карточки чуть меньше */
-        .catalog-content .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Было 250px */
-            gap: 1.5rem;
-        }
-
-        /* 2. Уменьшаем высоту и шрифты внутри карточки в каталоге */
-        .catalog-content .card-image-wrapper {
-            padding-top: 100%; /* Квадрат 1:1 */
-            background: #f0f0f0;
-        }
-
-        .catalog-content .product-title {
-            font-size: 1rem; /* Уменьшенный заголовок */
-            margin-bottom: 0.3rem;
-        }
-
-        .catalog-content .product-desc {
-            font-size: 0.8rem; /* Меньше описание */
-            margin-bottom: 0.5rem;
-            -webkit-line-clamp: 2; /* Обрезать текст после 2 строк */
-        }
-
-        .catalog-content .product-price {
-            font-size: 1rem;
-        }
-
-        /* 3. Стили для мини-кнопок размера внутри карточки */
-        .mini-size-selector {
-            display: flex;
-            gap: 5px;
-            margin-top: 8px;
-        }
-
-        .mini-size-btn {
-            width: 28px;
-            height: 28px;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            border-radius: 5px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        .mini-size-btn:hover {
-            border-color: var(--text-main);
-        }
-
-        /* Активный размер внутри карточки */
-        .mini-size-btn.active {
-            background: var(--text-main);
-            color: var(--bg-body);
-            border-color: var(--text-main);
-        }
-
-        /* Кнопка состава */
-        .btn-compose {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            color: #888;
-            margin-right: 5px;
-            transition: color 0.2s;
-        }
-        .btn-compose:hover { color: #ff9a9e; }
-
-
-        /* --- СТИЛИ ДЛЯ ФОРМЫ ЗАКАЗА --- */
-        .checkout-modal .modal-content {
-            border-radius: 20px 5px 20px 5px; /* Нарисованный эффект */
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-main);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-body);
-            color: var(--text-main);
-            border-radius: 10px;
-            font-family: var(--font-body);
-            font-size: 1rem;
-            transition: border 0.2s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--text-main);
-        }
-
-        textarea.form-input {
-            resize: vertical; /* Разрешить растягивать только по вертикали */
-        }
-
-
-        /* --- СТИЛИ REFF-STYLE CHECKOUT --- */
-
-        /* Убираем отступы у модала, чтобы контент был во весь экран */
-        .checkout-modal .modal-content {
-            border-radius: 4px; /* Более строгий вид */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        }
-
-        .checkout-modal .modal-body {
-            padding: 0;
-            overflow-y: auto; /* Если контента много */
-            max-height: 85vh;
-        }
-
-        /* Разделы */
-        .checkout-section {
-            padding: 2rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .checkout-section:last-child {
-            border-bottom: none;
-        }
-
-        .section-title-mini {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        /* Строка формы (имя + телефон) */
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Инпуты оформлены */
-        .checkout-input {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-        }
-
-        .checkout-input:focus {
-            background: #fff;
-            border-color: #333;
-        }
-
-        /* --- КАРТОЧКИ ДОСТАВКИ --- */
-        .delivery-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-        }
-
-        .delivery-card {
-            position: relative;
-            cursor: pointer;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            overflow: hidden;
-            display: block;
-        }
-
-        /* Скрываем сам radio-input */
-        .delivery-card input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* Стили карточки */
-        .card-content {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            transition: all 0.2s;
-        }
-
-        /* Активная карточка */
-        .delivery-card.active {
-            border-color: #333;
-            background-color: #fcfcfc;
-        }
-
-        .delivery-card.active .card-name {
-            color: #000;
-        }
-
-        .card-icon {
-            font-size: 2rem;
-            margin-right: 1rem;
-        }
-
-        .card-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-name {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 0.2rem;
-        }
-
-        .card-desc {
-            font-size: 0.8rem;
-            color: #999;
-            margin-bottom: 0.2rem;
-        }
-
-        .card-price {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        /* --- СУММА В КОРЗИНЕ --- */
-        .checkout-subtotal {
-            background: #f5f5f5;
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .checkout-subtotal span {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        /* --- КОРЗИНА В CHECKOUT --- */
-        .checkout-items-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-        }
-
-        .checkout-item-preview {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px dashed #ddd;
-        }
-
-        .checkout-item-preview img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .checkout-item-details h4 {
-            font-size: 1rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .checkout-item-details p {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        /* --- ПОДВАЛ ОФОРМЛЕНИЯ --- */
-        .checkout-footer {
-            position: sticky;
-            bottom: 0;
-            background: #fff;
-            padding: 1.5rem;
-            border-top: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
-        }
-
-        .final-total {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .final-total span {
-            color: #ff6b6b;
-            font-size: 1.5rem;
-        }
-
-        .btn-checkout-big {
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s;
-        }
-
-        .btn-checkout-big:hover {
-            background: #000;
-            transform: translateY(-2px);
-        }
-
-        /* Мобильная версия чекаута */
-        @media (max-width: 600px) {
-            .delivery-options {
-                grid-template-columns: 1fr;
-            }
-            .checkout-subtotal span {
-                flex-direction: column;
-                display: flex;
-                gap: 5px;
-            }
-        }
-
-        /* --- СТИЛИ ДЛЯ ОФЕРТЫ И УХОДА --- */
-        .offer-section {
-            padding: 4rem 5%;
-            background-color: #f5f5f5;
-            text-align: center;
-        }
-
-        .offer-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .offer-content h2 {
-            font-family: var(--font-hand);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Коробка для скролла текста */
-        .offer-scroll-box {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 20px 5px 20px 5px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--border-color);
-            max-height: 400px;
-            overflow-y: auto;
-            text-align: left;
-            margin-top: 1rem;
-            padding: 1.5rem;
-        }
-
-
-        /* --- СТИЛИ ДЛЯ ИНФО-МОДАЛА --- */
-
-        .info-modal .modal-content {
-            background: #fff;
-            border-radius: 20px 5px 20px 5px;
-        }
-
-        /* Табы */
-        .info-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #eee;
-        }
-
-        .info-tab {
-            background: none;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 10px 10px 0 0;
-            cursor: pointer;
-            font-family: var(--font-body);
-            font-weight: 600;
-            color: #999;
-            transition: all 0.3s;
-        }
-
-        .info-tab:hover {
-            background: #f5f5f5;
-            color: var(--text-main);
-        }
-
-        .info-tab.active {
-            background: #333;
-            color: #fff;
-            border-radius: 10px 10px 0 0;
-        }
-
-        /* Контент табов */
-        .info-tab-content {
-            display: none;
-            padding-bottom: 1rem;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .info-tab-content.active {
-            display: block;
-        }
-
-        .info-tab-content h3 {
-            font-family: var(--font-hand);
-            margin-bottom: 0.5rem;
-            color: var(--text-main);
-        }
-
-        .info-tab-content ul li {
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-
-    </style>
+        /* 3. Гарантируем белый текст */
+        color: #ffffff !important;
+    }
+
+    /* --- ОТСТУПЫ ДЛЯ ОФЕРТЫ --- */
+.offer-section {
+    margin-left: 200px;
+    margin-right: 200px;
+}
+
+    /* --- ИКОНКИ В ПОДВАЛЕ (Для картинок) --- */
+.social-links { 
+    display: flex; 
+    justify-content: center; 
+    gap: 2rem; /* Отступ между иконками */
+    margin: 2rem 0; 
+}
+
+.social-links a { 
+    display: block; /* Чтобы картинка была ссылкой */
+    width: 50px;  /* Размер иконки */
+    height: 50px; 
+    border-radius: 50%; /* Делаем круглой */
+    overflow: hidden; /* Чтобы картинка не вылезала за границы */
+    border: 2px solid transparent; /* Невидимая рамка */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Плавная анимация */
+}
+
+.social-links a img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* Чтобы картинка заполняла весь квадрат */
+    opacity: 0.8; /* Немного прозрачная по умолчанию */
+    transition: all 0.3s;
+}
+
+/* Эффекты при наведении */
+.social-links a:hover { 
+    opacity: 1; /* Становится непрозрачной */
+    transform: translateY(-3px) scale(1.1); /* Поднимается и увеличивается */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Тень снизу */
+}
+
+/* --- ИКОНКИ В ТЕМНОЙ ТЕМЕ (Опционально) --- */
+[data-theme="dark"] .social-links a:hover { 
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15); /* Белая тень */
+    border-color: rgba(255, 255, 255, 0.2); /* Легкая белая рамка */
+}
+
+</style>
 </head>
 <body>
 
@@ -1312,23 +743,12 @@
             </ul>
         </nav>
         <div class="header-controls">
-            <button class="theme-toggle" id="themeToggle" title="Переключить тему">
-                🌙
-            </button>
+            <button class="theme-toggle" id="themeToggle">🌙</button>
             <div class="cart-wrapper" id="cartWrapper">
-                <div class="cart-icon">
-                    🛒 <span class="cart-badge">0</span>
-                </div>
-                
-                <!-- Всплывающая корзина -->
-               <div class="cart-dropdown">
-                    <!-- Сюда скрипт будет добавлять товары -->
+                <div class="cart-icon">🛒 <span class="cart-badge">0</span></div>
+                <div class="cart-dropdown">
                     <div id="cart-items-container"></div>
-
-                    <!-- Итоговая сумма -->
                     <div class="cart-total">Итого: 0 ₽</div>
-                    
-                    <!-- Кнопка оформления (ВНИМАНИЕ: здесь НЕТ onclick) -->
                     <button class="btn-checkout">Оформить заказ</button>
                 </div>
             </div>
@@ -1346,7 +766,6 @@
         <section id="t-shirts" class="section-t-shirts">
             <div class="section-header">
                 <h2 class="section-title">Футболки и худи</h2>
-                <!-- Визуальные фильтры -->
                 <div class="filters">
                     <button class="filter-btn active">Все</button>
                     <button class="filter-btn">Мрачные</button>
@@ -1360,20 +779,19 @@
                 <!-- ТОВАР 1 -->
                 <div class="product-card" data-style="dark" data-category="t-shirts">
                     <div class="card-image-wrapper" 
-                            data-title="Dark Cat Oversize" 
+                            data-title="Dark Punk Oversize" 
                             data-price="2500 ₽" 
-                            data-desc="Плотная хлопковая футболка черного цвета с принтом меланхоличного кота. Сшита вручную."
-                            
-                            data-img="https://picsum.photos/seed/gloomy1/600/600"
-                            
+                            data-desc="Плотная хлопковая футболка черного цвета с принтом меланхоличного панка."
+                            data-img="https://i.imgur.com/V2sffD3.jpeg"
                             data-composition="100% хлопок. Плотность 160 г/м². Ручной трафарет. Не выкручивать перед стиркой при 30°C.">
         
                         <span class="style-tag">Мрачный</span>
-                        <img src="https://picsum.photos/seed/gloomy1/400/400" alt="Футболка">
+                        <img src="https://i.imgur.com/V2sffD3.jpeg" alt="Футболка">
+                        <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
-                        <h3 class="product-title">Dark Cat Oversize</h3>
-                        <p class="product-desc">Плотная хлопковая футболка черного цвета с рисунком меланхоличного кота.</p>
+                        <h3 class="product-title">Dark Punk Oversize</h3>
+                        <p class="product-desc">Плотная хлопковая футболка черного цвета с рисунком меланхоличного панка.</p>
                         <div class="card-footer">
                             <div>
                                 <span class="product-price">2500 ₽</span>
@@ -1383,8 +801,6 @@
                                     <button class="mini-size-btn">L</button>
                                     <button class="mini-size-btn">XL</button>
                                 </div>
-                                <!-- Кнопка состава -->
-                                <button class="btn-compose" data-comp="100% хлопок. Плотность 160 г/м². Ручной трафарет.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
@@ -1395,26 +811,25 @@
                 <div class="product-card" data-style="cute" data-category="t-shirts">
                     <div class="card-image-wrapper" 
                             data-title="Cute Cat Oversize" 
-                            data-price="3200 ₽" 
-                            data-desc="Толстовка из мягкого хлопка."
-                            data-img="https://picsum.photos/seed/gloomy2/600/600">
-        
+                            data-price="200 ₽" 
+                            data-desc="Футболка с рисунком какой-то аниме."
+                            data-img="https://i.imgur.com/3DF0Eb5.png">
                         <span class="style-tag">Милый</span>
-                        <img src="https://picsum.photos/seed/gloomy2/400/400" alt="Футболка">
+                        <img src="https://i.imgur.com/3DF0Eb5.png" alt="Футболка">
+                        <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Pastel Dreams</h3>
-                        <p class="product-desc">Нежная бежевая толстовка с вышивкой облачков. Идеально для уютных стримов.</p>
+                        <p class="product-desc">Футболка с рисунком какой-то аниме.</p>
                         <div class="card-footer">
                             <div>
-                                <span class="product-price">3200 ₽</span>
+                                <span class="product-price">200 ₽</span>
                                 <div class="mini-size-selector">
                                     <button class="mini-size-btn">S</button>
                                     <button class="mini-size-btn active">M</button>
                                     <button class="mini-size-btn">L</button>
                                     <button class="mini-size-btn">XL</button>
                                 </div>
-                                <button class="btn-compose" data-comp="100% хлопок, мягкий начес.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
@@ -1424,27 +839,26 @@
                 <!-- ТОВАР 3 -->
                 <div class="product-card" data-style="sea" data-category="t-shirts">
                     <div class="card-image-wrapper" 
-                            data-title="Sea Cat Oversize" 
-                            data-price="4500 ₽" 
-                            data-desc="Джинсовка с якорем."
-                            data-img="https://picsum.photos/seed/gloomy3/600/600">
-        
+                            data-title="Again anime zalupa Oversize" 
+                            data-price="45 ₽" 
+                            data-desc="Again anime zalupa Oversize."
+                            data-img="https://i.imgur.com/7m5pbNr.png">
                         <span class="style-tag">Морской</span>
-                        <img src="https://picsum.photos/seed/gloomy3/400/400" alt="Футболка">
+                        <img src="https://i.imgur.com/7m5pbNr.png" alt="Футболка">
+                        <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
-                        <h3 class="product-title">Captain Pshish</h3>
-                        <p class="product-desc">Джинсовка с якорем и мини-принтом на кармане. Легкая ветровка.</p>
+                        <h3 class="product-title">Anime Oversize</h3>
+                        <p class="product-desc"> Аnime Oversize</p>
                         <div class="card-footer">
                             <div>
-                                <span class="product-price">4500 ₽</span>
+                                <span class="product-price">45 ₽</span>
                                 <div class="mini-size-selector">
                                     <button class="mini-size-btn">S</button>
                                     <button class="mini-size-btn active">M</button>
                                     <button class="mini-size-btn">L</button>
                                     <button class="mini-size-btn">XL</button>
                                 </div>
-                                <button class="btn-compose" data-comp="Плотная джинсовка.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
@@ -1456,15 +870,15 @@
                     <div class="card-image-wrapper" 
                             data-title="Basic Logo" 
                             data-price="1900 ₽" 
-                            data-desc="Классическая футболка."
-                            data-img="https://picsum.photos/seed/gloomy4/600/600">
-        
+                            data-desc="Оверсайз футболка с осьминогом на груди."
+                            data-img="https://i.imgur.com/qj1avTT.jpeg">
                         <span class="style-tag">Злой</span>
-                        <img src="https://picsum.photos/seed/gloomy4/400/400" alt="Футболка">
+                        <img src="https://i.imgur.com/qj1avTT.jpeg" alt="Футболка">
+                        <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Basic Logo</h3>
-                        <p class="product-desc">Классическая футболка с минималистичным логотипом Pshish на груди.</p>
+                        <p class="product-desc">Оверсайз футболка с осьминогом на груди.</p>
                         <div class="card-footer">
                             <div>
                                 <span class="product-price">1900 ₽</span>
@@ -1474,7 +888,6 @@
                                     <button class="mini-size-btn">L</button>
                                     <button class="mini-size-btn">XL</button>
                                 </div>
-                                <button class="btn-compose" data-comp="100% хлопок.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
@@ -1498,68 +911,66 @@
             </div>
 
             <div class="products-grid">
-                <!-- Игрушка 1 -->
                 <div class="product-card" data-type="sew" data-category="toys">
                        <div class="card-image-wrapper" 
-                                data-title="АмурГрум" 
+                                data-title="Эндермен" 
                                 data-price="1200 ₽" 
-                                data-desc="Маленький вязаный монстрик с большими глазами. Ручная работа."
-                                data-img="https://picsum.photos/seed/gloomy5/600/600"
+                                data-desc="Эндермен - гад"
+                                data-img="https://i.imgur.com/nDMyfC6.jpeg"
                                 data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
-    
-                       <span class="style-tag">Вязаная</span>
-                  <img src="https://picsum.photos/seed/gloomy5/400/400" alt="Игрушка">
+                           <span class="style-tag">Вязаная</span>
+                           <img src="https://i.imgur.com/nDMyfC6.jpeg" alt="Игрушка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
-                        <h3 class="product-title">АмурГрум</h3>
-                        <p class="product-desc">Маленький вязаный монстрик с большими глазами. Ручная работа.</p>
+                        <h3 class="product-title">Эндермен</h3>
+                        <p class="product-desc">Эндермен - гад</p>
                         <div class="card-footer">
                             <div>
                                 <span class="product-price">1200 ₽</span>
-                                <!-- Игрушкам размеры обычно не нужны -->
                                 <div class="mini-size-selector" style="display:none;"></div>
-                                <button class="btn-compose" data-comp="100% шерсть, холофайбер.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Игрушка 2 -->
                 <div class="product-card" data-type="sew" data-category="toys">
                       <div class="card-image-wrapper" 
-                                data-title="Pshish Plush Big" 
+                                data-title="Корова БУ-БУ" 
                                 data-price="3500 ₽" 
                                 data-desc="Большая мягкая игрушка-талисман."
-                                data-img="https://picsum.photos/seed/gloomy6/600/600"
+                                data-img="https://i.imgur.com/WYoS6iN.jpeg"
                                 data-composition="Большая мягкая игрушка-талисман в образе стримерши. Мягкий плюш.">
-    
-                       <span class="style-tag">Вязаная</span>
-                  <img src="https://picsum.photos/seed/gloomy6/400/400" alt="Игрушка">
+                           <span class="style-tag">Вязаная</span>
+                           <img src="https://i.imgur.com/WYoS6iN.jpeg" alt="Игрушка">
+                           <div class="skeleton"></div>
                     </div>
+
+
                     <div class="card-content">
-                        <h3 class="product-title">Pshish Plush Big</h3>
+                        <h3 class="product-title">Корова БУ-БУ</h3>
                         <p class="product-desc">Большая мягкая игрушка-талисман в образе стримерши. Мягкий плюш.</p>
                         <div class="card-footer">
                             <div>
                                 <span class="product-price">3500 ₽</span>
                                 <div class="mini-size-selector" style="display:none;"></div>
-                                <button class="btn-compose" data-comp="Мягкий плюш, холофайбер.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Игрушка 3 -->
+
+                
                 <div class="product-card" data-type="knit" data-category="toys">
                        <div class="card-image-wrapper" 
                                 data-title="Ghost Buddy" 
                                 data-price="900 ₽" 
                                 data-desc="Вязаный приятель-привидение для декора комнаты."
-                                data-img="https://picsum.photos/seed/gloomy7/600/600"
+                                data-img="https://i.imgur.com/nDMyfC6.jpeg"
                                 data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
-    
-                       <span class="style-tag">Вязаная</span>
-                  <img src="https://picsum.photos/seed/gloomy7/400/400" alt="Игрушка">
+                           <span class="style-tag">Вязаная</span>
+                           <img src="https://i.imgur.com/nDMyfC6.jpeg" alt="Игрушка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Ghost Buddy</h3>
@@ -1568,23 +979,21 @@
                             <div>
                                 <span class="product-price">900 ₽</span>
                                 <div class="mini-size-selector" style="display:none;"></div>
-                                <button class="btn-compose" data-comp="100% шерсть.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
                     </div>
                 </div>
-                <!-- Игрушка 4 -->
                 <div class="product-card" data-type="knit" data-category="toys">
                        <div class="card-image-wrapper" 
                                 data-title="Octopus Friend" 
                                 data-price="1500 ₽" 
                                 data-desc="Симпатичный осьминог с мягкими щупальцами. Антистресс."
-                                data-img="https://picsum.photos/seed/gloomy8/600/600"
+                                data-img="https://i.imgur.com/WYoS6iN.jpeg"
                                 data-composition="Игрушка вязана вручную из пряжи 100% шерсть. Характер мягкий.">
-    
-                       <span class="style-tag">Вязаная</span>
-                  <img src="https://picsum.photos/seed/gloomy8/400/400" alt="Игрушка">
+                           <span class="style-tag">Вязаная</span>
+                           <img src="https://i.imgur.com/WYoS6iN.jpeg" alt="Игрушка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Octopus Friend</h3>
@@ -1593,7 +1002,6 @@
                             <div>
                                 <span class="product-price">1500 ₽</span>
                                 <div class="mini-size-selector" style="display:none;"></div>
-                                <button class="btn-compose" data-comp="100% шерсть.">ℹ</button>
                             </div>
                             <button class="btn-add">+</button>
                         </div>
@@ -1611,16 +1019,15 @@
             </div>
 
             <div class="products-grid">
-                <!-- Девайс 1 -->
                 <div class="product-card" data-style="dark" data-category="devices">
                        <div class="card-image-wrapper" 
                                 data-title="Коврик для мыши" 
                                 data-price="800 ₽" 
                                 data-desc="Принт с котиками."
-                                data-img="https://picsum.photos/seed/gloomy9/600/600">
-    
-                       <span class="style-tag">Коврик</span>
-                  <img src="https://picsum.photos/seed/gloomy9/400/400" alt="Футболка">
+                                data-img="https://i.imgur.com/AqzxTLJ.jpeg">
+                           <span class="style-tag">Коврик</span>
+                           <img src="https://i.imgur.com/AqzxTLJ.jpeg" alt="Футболка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Коврик для мыши</h3>
@@ -1634,16 +1041,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- Девайс 2 -->
                 <div class="product-card" data-style="sea" data-category="devices">
                        <div class="card-image-wrapper" 
                                 data-title="Брелок &quot;Pshish&quot;" 
                                 data-price="450 ₽" 
                                 data-desc="Акриловый брелок с подписью."
-                                data-img="https://picsum.photos/seed/gloomy10/600/600">
-    
-                       <span class="style-tag">Коврик</span>
-                  <img src="https://picsum.photos/seed/gloomy10/400/400" alt="Футболка">
+                                data-img="https://i.imgur.com/CnaKtk5.jpeg">
+                           <span class="style-tag">Коврик</span>
+                           <img src="https://i.imgur.com/CnaKtk5.jpeg" alt="Футболка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Брелок "Pshish"</h3>
@@ -1657,16 +1063,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- Девайс 3 -->
                 <div class="product-card" data-style="cute" data-category="devices">
                        <div class="card-image-wrapper" 
                                 data-title="Чехол на телефон" 
                                 data-price="600 ₽" 
                                 data-desc="Силиконовый чехол."
-                                data-img="https://picsum.photos/seed/gloomy11/600/600">
-    
-                       <span class="style-tag">Чехол</span>
-                  <img src="https://picsum.photos/seed/gloomy11/400/400" alt="Футболка">
+                                data-img="https://i.imgur.com/9IsSbA7.jpeg">
+                           <span class="style-tag">Чехол</span>
+                           <img src="https://i.imgur.com/9IsSbA7.jpeg" alt="Футболка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Чехол на телефон</h3>
@@ -1680,16 +1085,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- Девайс 4 -->
                 <div class="product-card" data-style="dark" data-category="devices">
                        <div class="card-image-wrapper" 
                                 data-title="Набор наклеек" 
                                 data-price="300 ₽" 
                                 data-desc="Лист с 10 виниловыми наклейками."
-                                data-img="https://picsum.photos/seed/gloomy12/600/600">
-    
-                       <span class="style-tag">Наклейки</span>
-                  <img src="https://picsum.photos/seed/gloomy12/400/400" alt="Футболка">
+                                data-img="https://i.imgur.com/e1xHKvW.jpeg">
+                           <span class="style-tag">Наклейки</span>
+                           <img src="https://i.imgur.com/e1xHKvW.jpeg" alt="Футболка">
+                           <div class="skeleton"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="product-title">Набор наклеек</h3>
@@ -1714,8 +1118,6 @@
         <div class="offer-content">
             <h2 class="section-title">Публичная оферта</h2>
             <p>Прокрутите вниз, чтобы ознакомиться с условиями.</p>
-            
-            <!-- Блок для скролла текста -->
             <div class="offer-scroll-box">
                 <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.5;">
 Договор публичной оферты о продаже товаров в интернет-магазине «Pshish Store»
@@ -1765,108 +1167,94 @@ Email: [Твой Email]
         <div class="footer-content">
             <h3>Pshish Store</h3>
             <div class="social-links">
-                <a href="#" title="Twitch">📺</a>
-                <a href="#" title="YouTube">▶️</a>
-                <a href="#" title="Telegram">✈️</a>
-                <a href="#" title="VK">💬</a>
-            </div>
+    <!-- 1. TWITCH -->
+    <a href="https://twitch.tv/pshishh" target="_blank" title="Twitch">
+        <img src="https://static.vecteezy.com/system/resources/previews/023/986/749/non_2x/twitch-logo-twitch-logo-transparent-twitch-icon-transparent-free-free-png.png" alt="Twitch">
+    </a>
+
+    <!-- 2. YT -->
+    <a href="https://www.youtube.com/@pshishh" target="_blank" title="YouTube">
+        <img src="https://img.freepik.com/premium-vector/youtube-logo_1090394-158105.jpg?semt=ais_hybrid&w=740&q=80" alt="YouTube">
+    </a>
+
+    <!-- 3. TELEGRAM -->
+    <a href="https://t.me/pshishhh" target="_blank" title="Telegram">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Telegram_2019_Logo.svg/1024px-Telegram_2019_Logo.svg.png" alt="Telegram">
+    </a>
+
+    <!-- 4. DONATION -->
+    <a href="https://www.donationalerts.com/r/pshishh" target="_blank" title="Донаты">
+        <img src="https://cdn.kanobu.ru/articles/pics/8a031660-6feb-4742-aa40-5d910bdd0e02.jpg" alt="Донаты">
+    </a>
+</div>
             <div class="contact-info">
                 <p>Есть вопросы? Пиши в чат: @loomanager</p>
-                <p>Телефон: </p>
+                <p>Телефон: 8999999999</p>
                 <br>
-                <p style="font-size: 0.8rem; opacity: 0.6;">© 2023 Pshish. Все права защищены.</p>
+                <p style="font-size: 0.8rem; opacity: 0.6;">© 2026 Pshish. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
-
-    <!-- ПОЛНЫЙ КАТАЛОГ (СКРЫТ) -->
+    <!-- ПОЛНЫЙ КАТАЛОГ -->
     <div id="fullCatalog" class="catalog-overlay hidden">
-        
-        <!-- Шапка каталога -->
         <div class="catalog-header">
             <button class="btn-back" id="closeCatalogBtn">← Вернуться</button>
             <h2 id="catalogPageTitle">Все товары</h2>
         </div>
-
        <div class="catalog-container">
-            
-        <!-- БОКОВАЯ ПАНЕЛЬ С ФИЛЬТРАМИ -->
-        <aside class="catalog-sidebar">
-            <!-- Поиск -->
-            <div class="filter-group">
-                <label>Поиск</label>
-                <input type="text" id="catalogSearch" placeholder="Название товара...">
-            </div>
-
-            <!-- Фильтр по ТИПУ ТОВАРА -->
-            <div class="filter-group">
-                <label>Категория товара</label>
-                <label class="checkbox-label"><input type="checkbox" value="t-shirts" checked class="checkbox-category"> Футболки</label>
-                <label class="checkbox-label"><input type="checkbox" value="toys" checked class="checkbox-category"> Игрушки</label>
-                <label class="checkbox-label"><input type="checkbox" value="devices" checked class="checkbox-category"> Девайсы</label>
-            </div>
-
-            <!-- Фильтр по цене -->
-            <div class="filter-group">
-                <label>Цена</label>
-                <div class="price-inputs">
-                    <input type="number" placeholder="От">
-                    <input type="number" placeholder="До">
+            <aside class="catalog-sidebar">
+                <div class="filter-group">
+                    <label>Поиск</label>
+                    <input type="text" id="catalogSearch" placeholder="Название товара...">
                 </div>
+                <div class="filter-group">
+                    <label>Категория товара</label>
+                    <label class="checkbox-label"><input type="checkbox" value="t-shirts" checked class="checkbox-category"> Футболки</label>
+                    <label class="checkbox-label"><input type="checkbox" value="toys" checked class="checkbox-category"> Игрушки</label>
+                    <label class="checkbox-label"><input type="checkbox" value="devices" checked class="checkbox-category"> Девайсы</label>
+                </div>
+                <div class="filter-group">
+                    <label>Цена</label>
+                    <div class="price-inputs">
+                        <input type="number" placeholder="От">
+                        <input type="number" placeholder="До">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Стиль</label>
+                    <label class="checkbox-label"><input type="checkbox" value="dark"> Мрачные</label>
+                    <label class="checkbox-label"><input type="checkbox" value="cute"> Милые</label>
+                    <label class="checkbox-label"><input type="checkbox" value="sea"> Морские</label>
+                </div>
+            </aside>
+            <div class="catalog-content">
+                <div id="catalogGrid" class="products-grid"></div> 
             </div>
-
-            <!-- Доп фильтры (Стили) -->
-            <div class="filter-group">
-                <label>Стиль</label>
-                <label class="checkbox-label"><input type="checkbox" value="dark"> Мрачные</label>
-                <label class="checkbox-label"><input type="checkbox" value="cute"> Милые</label>
-                <label class="checkbox-label"><input type="checkbox" value="sea"> Морские</label>
-            </div>
-        </aside>
-
-        <!-- ОСНОВНОЙ КОНТЕНТ (СЕТКА ТОВАРОВ) -->
-        <div class="catalog-content">
-            
-            <!-- ЕДИНСТВЕННЫЙ БЛОК СЕТКИ (ВСЕ ТОВАРЫ ВНУТРИ НЕГО) -->
-            <div id="catalogGrid" class="products-grid">
-                <!-- Товары сюда скопирует JS -->
-            </div> 
-        </div> <!-- Конец catalog-content -->
-    </div> <!-- Конец catalog-container -->
-
-            
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
+    <!-- МОДАЛКИ -->
     <div id="productModal" class="modal">
         <div class="modal-content">
-            <!-- Кнопка закрытия -->
             <span class="close-modal">&times;</span>
-            
             <div class="modal-body">
-                <!-- Левая колонка: Фото -->
                 <div class="modal-gallery">
                     <img src="" alt="Большое фото" id="modalImg">
                 </div>
-                
-                <!-- Правая колонка: Инфо -->
                 <div class="modal-info">
-                    
-                    <!-- Заголовку добавили id="modalTitle" -->
                     <h2 id="modalTitle" class="modal-title">Dark Cat Oversize</h2>
-
-                    <!-- Цене добавили id="modalPrice" -->
                     <p id="modalPrice" class="modal-price">2500 ₽</p>
-
-                    <!-- Описанию добавили id="modalDesc" -->
                     <p id="modalDesc" class="modal-desc">
                         Плотная хлопковая футболка черного цвета с принтом меланхоличного кота. 
                         Сшита вручную с любовью. Материал мягкий, не линяет при стирке.
-                </p>
+                    </p>
+                    
+                    <div class="modal-composition" id="modalCompositionBlock">
+                        <span class="composition-label">Состав</span>
+                        <p class="composition-text" id="modalCompositionText">...</p>
+                    </div>
 
-                    <!-- Выбор размера -->
                     <div class="size-selector">
                         <p class="selector-label">Размер:</p>
                         <div class="sizes">
@@ -1877,59 +1265,92 @@ Email: [Твой Email]
                             <button class="size-btn">XL</button>
                         </div>
                     </div>
-
-                    <!-- Кнопка покупки -->
                     <button class="btn-buy-modal">Добавить в корзину</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ОФОРМЛЕНИЯ ЗАКАЗА (СТИЛЬ REFF) -->
+    <!-- МОДАЛКА УХОДА -->
+    <div id="infoModal" class="modal info-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeInfoModal">&times;</span>
+            <div class="modal-body">
+                <h2 id="infoModalTitle" class="modal-title" style="font-size: 2rem; margin-bottom: 0.5rem;">Информация</h2>
+                
+                <div id="compositionContent" style="display: none; padding: 0 2rem; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Состав и материал</h3>
+                    <p id="compositionText" style="line-height: 1.8;">Описание состава...</p>
+                </div>
+
+                <div id="rulesContent" style="display: flex; flex-direction: column;">
+                    <div class="info-tabs">
+                        <button class="info-tab active" data-tab="cotton">Хлопок</button>
+                        <button class="info-tab" data-tab="acrylic">Акрил</button>
+                        <button class="info-tab" data-tab="wool">Шерсть</button>
+                    </div>
+
+                    <div class="info-tab-content active" id="tab-cotton">
+                        <h3>Уход за хлопковыми футболками</h3>
+                        <ul style="line-height: 1.8; list-style-type: disc; padding-left: 1.2rem;">
+                            <li><strong>Стирка:</strong> При 30-40°C в деликатном режиме.</li>
+                            <li><strong>Отжим:</strong> Не выкручивать и не сушить в машинке.</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-tab-content" id="tab-acrylic">
+                        <h3>Уход за акриловыми красками</h3>
+                        <ul style="line-height: 1.8; list-style-type: disc; padding-left: 1.2rem;">
+                            <li><strong>Высыхание:</strong> 24 часа.</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-tab-content" id="tab-wool">
+                        <h3>Уход за вязаными игрушками</h3>
+                        <ul style="line-height: 1.8; list-style-type: disc; padding-left: 1.2rem;">
+                            <li><strong>Ручная стирка:</strong> В теплой воде.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ЧЕКАУТА -->
     <div id="checkoutModal" class="modal checkout-modal">
         <div class="modal-content" style="max-width: 600px; background: #fff;">
-            <!-- Кнопка закрытия -->
             <span class="close-modal" id="closeCheckoutBtn">&times;</span>
-            
             <div class="modal-body" style="flex-direction: column; padding: 0;">
-                <h2 style="font-family: var(--font-hand); font-size: 2rem; margin: 2rem 0 1.5rem; text-align: center; color: #333;">Оформление заказа</h2>
-                
+                <h2 style="font-family: var(--font-hand); font-size: 2rem; margin: 2.5rem 0 1.5rem; text-align: center;">Оформление заказа</h2>
                 <form id="orderForm" style="padding: 0 2rem;">
                     
-                    <!-- БЛОК 1: Корзина -->
                     <div class="checkout-section">
                         <h3 class="section-title-mini">Ваш заказ</h3>
-                        <div id="checkoutItemsContainer">
-                            <!-- Сюда JS переложит товары -->
-                        </div>
+                        <div id="checkoutItemsContainer"></div>
                         <div class="checkout-subtotal">
                             <span>Товары: <b id="checkoutItemsTotal">0 ₽</b></span>
-                        <span>Доставка: <b id="checkoutDeliveryCost">0 ₽</b></span>
-                        <span style="font-size: 1.2rem;">Итого: <b id="checkoutGrandTotal" style="color: #ff6b6b;">0 ₽</b></span>
+                            <span>Доставка: <b id="checkoutDeliveryCost">0 ₽</b></span>
+                            <span style="font-size: 1.2rem; margin-top: 5px;">Итого: <b id="checkoutGrandTotal" style="color: var(--text-main);">0 ₽</b></span>
                         </div>
                     </div>
 
-                    <!-- БЛОК 2: Данные получателя -->
                     <div class="checkout-section">
                         <h3 class="section-title-mini">Получатель</h3>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Имя</label>
-                                <input type="text" class="form-input checkout-input" placeholder="Иван" required>
+                                <input type="text" class="form-input" name="name" placeholder="Иван" required>
                             </div>
                             <div class="form-group">
                                 <label>Телефон</label>
-                                <input type="tel" class="form-input checkout-input" placeholder="+7 999 000 00 00" required>
+                                <input type="tel" class="form-input" name="phone" placeholder="+7 999 000 00 00" required>
                             </div>
                         </div>
                     </div>
 
-                    <!-- БЛОК 3: Способ доставки -->
                     <div class="checkout-section">
                         <h3 class="section-title-mini">Способ доставки</h3>
-                        
                         <div class="delivery-options">
-                            <!-- СДЭК -->
                             <label class="delivery-card active">
                                 <input type="radio" name="delivery" value="cdek" data-price="300" checked>
                                 <div class="card-content">
@@ -1941,8 +1362,6 @@ Email: [Твой Email]
                                     </div>
                                 </div>
                             </label>
-
-                            <!-- Почта России -->
                             <label class="delivery-card">
                                 <input type="radio" name="delivery" value="post" data-price="250">
                                 <div class="card-content">
@@ -1954,8 +1373,6 @@ Email: [Твой Email]
                                     </div>
                                 </div>
                             </label>
-
-                            <!-- Курьер -->
                             <label class="delivery-card">
                                 <input type="radio" name="delivery" value="courier" data-price="500">
                                 <div class="card-content">
@@ -1970,29 +1387,26 @@ Email: [Твой Email]
                         </div>
                     </div>
 
-                    <!-- БЛОК 4: Адрес -->
                     <div class="checkout-section">
                         <h3 class="section-title-mini">Адрес доставки</h3>
                         <div class="form-group">
                             <label>Город</label>
-                            <input type="text" class="form-input checkout-input" placeholder="Город" required>
+                            <input type="text" class="form-input" name="city" placeholder="Город" required>
                         </div>
                         <div class="form-group">
                             <label>Улица, дом, квартира</label>
-                            <textarea class="form-input checkout-input" rows="3" placeholder="Адрес..." required></textarea>
+                            <textarea class="form-input" name="address" rows="3" placeholder="Адрес..." required></textarea>
                         </div>
                         <div class="form-group">
                             <label>Комментарий к заказу (необязательно)</label>
-                            <textarea class="form-input checkout-input" rows="2" placeholder="Позвони, если домофон..."></textarea>
+                            <textarea class="form-input" name="comment" rows="2" placeholder="Позвони, если домофон..."></textarea>
                         </div>
                     </div>
 
-                    <!-- Кнопка отправки -->
                     <div class="checkout-footer">
                         <div class="final-total">К оплате: <span id="checkoutFinalTotal">0 ₽</span></div>
                         <button type="submit" class="btn-checkout-big">Подтвердить заказ</button>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -2003,11 +1417,8 @@ Email: [Твой Email]
     // ЧАСТЬ 1: ГЛОБАЛЬНЫЕ ФУНКЦИИ (Корзина)
     // ==========================================
     
-    // Загрузка из памяти
     const savedCart = localStorage.getItem('pshish_cart');
-    let cart = savedCart ? JSON.parse(savedCart) : []; // cart доступна глобально
-
-    // Элементы корзины
+    let cart = savedCart ? JSON.parse(savedCart) : []; 
     const cartBadge = document.querySelector('.cart-badge');
     const cartContainer = document.getElementById('cart-items-container');
     const cartTotalElement = document.querySelector('.cart-total');
@@ -2034,7 +1445,7 @@ Email: [Твой Email]
                     <div style="flex: 1;">
                         <p style="font-size: 0.9rem; font-weight: 600;">${item.title}</p>
                         ${sizeHtml}
-                        <p style="font-size: 0.8rem; color: #888;">${item.price}</p>
+                        <p style="font-size: 0.8rem; color: #88;">${item.price}</p>
                     </div>
                     <button class="cart-item-remove" onclick="removeFromCart(${index})">&times;</button>
                 </div>
@@ -2068,11 +1479,11 @@ Email: [Твой Email]
     renderCart();
 
     // ==========================================
-    // ЧАСТЬ 2: ЛОГИКА СТРАНИЦЫ (Ждет загрузки)
+    // ЧАСТЬ 2: ЛОГИКА СТРАНИЦЫ
     // ==========================================
     
     document.addEventListener('DOMContentLoaded', () => {
-        console.log("Скрипт загружен, корзина работает!");
+        console.log("Скрипт загружен! Визуал MAX.");
 
         // --- 1. ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ---
         const themeToggle = document.getElementById('themeToggle');
@@ -2091,13 +1502,13 @@ Email: [Твой Email]
             });
         }
 
-        // --- 2. РАБОТА КОРЗИНЫ (Открытие) ---
+        // --- 2. РАБОТА КОРЗИНЫ ---
         const cartWrapper = document.getElementById('cartWrapper');
         if (cartWrapper) cartWrapper.addEventListener('click', (e) => {
             if (!e.target.closest('.cart-dropdown')) cartWrapper.classList.toggle('active');
         });
 
-        // --- 3. ДОБАВЛЕНИЕ В КОРЗИНУ (Кнопки +) ---
+        // --- 3. ДОБАВЛЕНИЕ В КОРЗИНУ ---
         const addBtns = document.querySelectorAll('.btn-add');
         addBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -2106,17 +1517,39 @@ Email: [Твой Email]
                 const imgWrapper = card.querySelector('.card-image-wrapper');
                 const activeSizeBtn = card.querySelector('.mini-size-btn.active');
                 addToCart(imgWrapper.getAttribute('data-title'), imgWrapper.getAttribute('data-price'), imgWrapper.getAttribute('data-img'), activeSizeBtn ? activeSizeBtn.textContent : null);
+                
+                // Анимация кнопки
                 const originalText = btn.textContent;
                 btn.textContent = '✔';
-                btn.style.transform = 'scale(1.2)';
+                btn.style.transform = 'scale(1.2) rotate(45deg)';
                 setTimeout(() => {
                     btn.textContent = originalText;
-                    btn.style.transform = 'scale(1)';
-                }, 500);
+                    btn.style.transform = 'scale(1) rotate(0deg)';
+                }, 600);
             });
         });
 
-        // --- 4. МОДАЛЬНОЕ ОКНО (Товар и Заказ) ---
+        // --- 4. АНИМАЦИЯ ЗАГРУЗКИ (Skeleton) + СТАГГЕР ---
+        const wrappers = document.querySelectorAll('.card-image-wrapper');
+        
+        wrappers.forEach((wrapper, index) => {
+            const img = wrapper.querySelector('img');
+            const skeleton = wrapper.querySelector('.skeleton');
+
+            // 1. Загрузка картинки
+            if(img) {
+                img.onload = () => {
+                    if(skeleton) skeleton.classList.add('fadeOut');
+                };
+            }
+
+            // 2. Staggered Animation (Каскадное появление)
+            // Добавляем задержку через CSS переменную в JS
+            wrapper.style.animationDelay = `${index * 50}ms`; // 50мс задержка на каждый товар
+            wrapper.classList.add('animate-slide-up'); // Класс CSS (добавь в CSS ниже)
+        });
+
+        // --- 5. МОДАЛКА ТОВАРА ---
         const modal = document.getElementById("productModal");
         const closeBtn = document.getElementsByClassName("close-modal")[0];
         const modalTitle = document.getElementById("modalTitle");
@@ -2124,7 +1557,7 @@ Email: [Твой Email]
         const modalDesc = document.getElementById("modalDesc");
         const modalImg = document.getElementById("modalImg");
         const modalBody = document.querySelector('.modal-body');
-        const modalCompBlock = document.getElementById('modalCompositionBlock'); // Для добавления состава
+        const modalCompBlock = document.getElementById('modalCompositionBlock');
 
         function closeModal() {
             modal.classList.remove("show");
@@ -2133,13 +1566,12 @@ Email: [Твой Email]
 
         if (closeBtn) closeBtn.onclick = closeModal;
 
-        // Открытие товара (с составом)
         document.querySelectorAll('.card-image-wrapper').forEach(card => {
             card.addEventListener('click', function() {
                 const title = this.getAttribute('data-title');
                 const price = this.getAttribute('data-price');
                 const desc = this.getAttribute('data-desc');
-                const comp = this.getAttribute('data-composition'); // Читаем состав из атрибута
+                const comp = this.getAttribute('data-composition');
                 const imgSrc = this.getAttribute('data-img');
 
                 modalTitle.textContent = title;
@@ -2147,11 +1579,10 @@ Email: [Твой Email]
                 modalDesc.textContent = desc;
                 modalImg.src = imgSrc;
 
-                // Удаляем старый блок состава, если он есть
+                // Состав
                 const oldComp = modalBody.querySelector('.modal-composition');
                 if (oldComp) oldComp.remove();
 
-                // Рисуем новый блок состава
                 if (comp) {
                     modalDesc.insertAdjacentHTML('afterend', `
                         <div class="modal-composition active">
@@ -2166,7 +1597,6 @@ Email: [Твой Email]
             });
         });
 
-        // Кнопка покупки в модалке товара
         const modalBuyBtn = document.querySelector('.btn-buy-modal');
         if (modalBuyBtn) {
             modalBuyBtn.addEventListener('click', () => {
@@ -2176,7 +1606,6 @@ Email: [Твой Email]
             });
         }
 
-        // Выбор размера в модалке
         const sizeBtns = document.querySelectorAll('.size-btn');
         sizeBtns.forEach(btn => {
             btn.addEventListener('click', function() {
@@ -2185,13 +1614,12 @@ Email: [Твой Email]
             });
         });
 
-        // --- 5. ОФОРМЛЕНИЕ ЗАКАЗА ---
+        // --- 6. ОФОРМЛЕНИЕ ЗАКАЗА ---
         const checkoutModal = document.getElementById("checkoutModal");
         const closeCheckoutBtn = document.getElementById("closeCheckoutBtn");
         const openCheckoutBtn = document.querySelector(".btn-checkout");
         const orderForm = document.getElementById("orderForm");
 
-        // Контейнеры чекаута
         const checkoutItemsContainer = document.getElementById("checkoutItemsContainer");
         const checkoutItemsTotalEl = document.getElementById("checkoutItemsTotal");
         const checkoutDeliveryCostEl = document.getElementById("checkoutDeliveryCost");
@@ -2199,8 +1627,34 @@ Email: [Твой Email]
         const checkoutFinalTotalEl = document.getElementById("checkoutFinalTotal");
 
         function openCheckout() {
-            renderCheckoutItems();
-            updateCheckoutTotal();
+            // Рендерим товары
+            checkoutItemsContainer.innerHTML = cart.map(i => `
+                <div class="checkout-item-preview">
+                    <img src="${i.img}">
+                    <div class="checkout-item-details">
+                        <h4>${i.title}</h4>
+                        <p>${i.size ? `Размер: ${i.size}` : ''}</p>
+                        <p>${i.price}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            let itemsTotal = 0;
+            cart.forEach(item => {
+                let priceValue = parseInt(item.price.replace(/\D/g, ''));
+                itemsTotal += priceValue;
+            });
+
+            // СДЭК по умолчанию
+            const activeDeliveryRadio = document.querySelector('input[name="delivery"]:checked');
+            const deliveryPrice = activeDeliveryRadio ? parseInt(activeDeliveryRadio.getAttribute('data-price')) : 0;
+            const grandTotal = itemsTotal + deliveryPrice;
+
+            checkoutItemsTotalEl.textContent = `${itemsTotal} ₽`;
+            checkoutDeliveryCostEl.textContent = `${deliveryPrice} ₽`;
+            checkoutGrandTotalEl.textContent = `${grandTotal} ₽`;
+            checkoutFinalTotalEl.textContent = `${grandTotal} ₽`;
+
             checkoutModal.classList.add("show");
             document.body.style.overflow = "hidden";
         }
@@ -2218,75 +1672,34 @@ Email: [Твой Email]
             closeCheckoutBtn.onclick = closeCheckout;
         }
 
-        // Рендер товаров в чекаут
-        function renderCheckoutItems() {
-            checkoutItemsContainer.innerHTML = '';
-            cart.forEach((item) => {
-                const html = `
-                    <div class="checkout-item-preview">
-                        <img src="${item.img}" alt="${item.title}">
-                        <div class="checkout-item-details">
-                            <h4>${item.title}</h4>
-                            <p>${item.size ? `Размер: ${item.size}` : ''}</p>
-                            <p>${item.price}</p>
-                        </div>
-                    </div>
-                `;
-                checkoutItemsContainer.insertAdjacentHTML('beforeend', html);
-            });
-        }
-
-        // Логика выбора доставки
+        // Логика доставки
         const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
         deliveryRadios.forEach(radio => {
             radio.addEventListener('change', () => {
                 document.querySelectorAll('.delivery-card').forEach(c => c.classList.remove('active'));
                 radio.closest('.delivery-card').classList.add('active');
-                updateCheckoutTotal();
+                
+                const price = parseInt(radio.getAttribute('data-price'));
+                const itemsTotal = parseInt(checkoutItemsTotalEl.textContent.replace(/\D/g, ''));
+                const newTotal = itemsTotal + price;
+                
+                checkoutDeliveryCostEl.textContent = `${price} ₽`;
+                checkoutGrandTotalEl.textContent = `${newTotal} ₽`;
+                checkoutFinalTotalEl.textContent = `${newTotal} ₽`;
             });
         });
-
-        // Счетчик итогов
-        function updateCheckoutTotal() {
-            let itemsTotal = 0;
-            cart.forEach(item => {
-                let priceValue = parseInt(item.price.replace(/\D/g, ''));
-                itemsTotal += priceValue;
-            });
-
-            const activeDeliveryRadio = document.querySelector('input[name="delivery"]:checked');
-            const deliveryPrice = activeDeliveryRadio ? parseInt(activeDeliveryRadio.getAttribute('data-price')) : 0;
-            const grandTotal = itemsTotal + deliveryPrice;
-
-            checkoutItemsTotalEl.textContent = `${itemsTotal} ₽`;
-            checkoutDeliveryCostEl.textContent = `${deliveryPrice} ₽`;
-            checkoutGrandTotalEl.textContent = `${grandTotal} ₽`;
-            checkoutFinalTotalEl.textContent = `${grandTotal} ₽`;
-        }
 
         if (orderForm) {
             orderForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const name = orderForm.querySelector('input[type="text"]').value;
-                const phone = orderForm.querySelector('input[type="tel"]').value;
-                const inputs = orderForm.querySelectorAll('.checkout-input'); 
-                const city = inputs[2].value;
-                const address = inputs[3].value;
-                const comment = inputs[4].value;
-                const activeDeliveryRadio = document.querySelector('input[name="delivery"]:checked');
-                const deliveryMethod = activeDeliveryRadio ? activeDeliveryRadio.value : 'Не выбран';
-
-                console.log("Новый заказ:", name, phone, city, address, comment);
-                alert(`Спасибо, ${name}! Заказ на ${checkoutFinalTotalEl.textContent} оформлен.`);
-                
+                alert('Спасибо! Ваш заказ принят.');
                 clearCart();
                 orderForm.reset();
                 closeCheckout();
             });
         }
 
-        // --- 6. ФИЛЬТРЫ (Главная и Каталог) ---
-        // Визуальные кнопки
+        // --- 7. ФИЛЬТРЫ ---
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -2294,7 +1707,6 @@ Email: [Твой Email]
             });
         });
 
-        // Мини-кнопки размеров
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('mini-size-btn')) {
                 const siblings = e.target.parentElement.querySelectorAll('.mini-size-btn');
@@ -2303,7 +1715,6 @@ Email: [Твой Email]
             }
         });
 
-        // Футболки (Главная)
         const tShirtsSection = document.getElementById('t-shirts');
         if (tShirtsSection) {
             const filterButtons = tShirtsSection.querySelectorAll('.filter-btn');
@@ -2328,7 +1739,6 @@ Email: [Твой Email]
             });
         }
 
-        // Игрушки (Главная)
         const toysSection = document.getElementById('toys');
         if (toysSection) {
             const filterButtons = toysSection.querySelectorAll('.filter-btn');
@@ -2352,7 +1762,7 @@ Email: [Твой Email]
             });
         }
 
-        // --- 7. ПОЛНЫЙ КАТАЛОГ ---
+        // --- 8. ПОЛНЫЙ КАТАЛОГ ---
         const fullCatalog = document.getElementById('fullCatalog');
         const closeCatalogBtn = document.getElementById('closeCatalogBtn');
         const catalogTitle = document.getElementById('catalogPageTitle');
@@ -2366,22 +1776,6 @@ Email: [Твой Email]
             });
         }
 
-        // Кнопка "ℹ" (Состав) - глобально, чтобы работала даже если мы не находим кнопку в DOMContentLoaded
-        window.addToCart = addToCart; // делаем функцию глобальной для кликов
-
-        document.querySelectorAll('.btn-compose').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Чтобы не открывалась картинка
-                const compText = btn.getAttribute('data-comp');
-                // Используем глобальную addToCart для упрощения, здесь нам корзина не нужна, но лучше оставить код единообразным
-                
-                // Тут вызываем модалку состава вручную, так как у нас нет готового ID для этого модала в твоем HTML
-                // Чтобы сделать по уму - тебе нужно добавить id="infoModal" в HTML infoModal, как я делал в прошлом шаге.
-                // Но пока просто алерт
-                alert(`Состав: ${compText}`);
-            });
-        });
-
         document.querySelectorAll('.view-all-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const text = btn.textContent;
@@ -2390,17 +1784,25 @@ Email: [Твой Email]
                 else if (text.includes('девайсы')) catalogTitle.textContent = "Все девайсы";
                 else catalogTitle.textContent = "Каталог";
                 
-                // 1. Копируем товары
+                // Копируем
                 const catalogGrid = document.getElementById('catalogGrid');
                 catalogGrid.innerHTML = '';
-                document.querySelectorAll('main .product-card').forEach(prod => catalogGrid.appendChild(prod.cloneNode(true)));
+                document.querySelectorAll('main .product-card').forEach((prod, index) => {
+                    const clone = prod.cloneNode(true);
+                    catalogGrid.appendChild(clone);
+                    // Сразу анимируем клоны
+                    const img = clone.querySelector('.card-image-wrapper img');
+                    const skel = clone.querySelector('.skeleton');
+                    if(img && skel) {
+                        img.onload = () => skel.classList.add('fadeOut');
+                    }
+                });
                 
                 fullCatalog.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             });
         });
 
-        // Функция фильтрации каталога
         function filterCatalog() {
             const cards = catalogGrid.querySelectorAll('.product-card');
             const searchText = searchInput.value.trim().toLowerCase();
@@ -2421,13 +1823,9 @@ Email: [Твой Email]
                 const matchesSearch = title.includes(searchText) || desc.includes(searchText);
                 const matchesPrice = (itemPrice >= minPrice && itemPrice <= maxPrice);
                 let matchesStyle = true;
-                if (checkedStyles.length > 0) {
-                    matchesStyle = checkedStyles.includes(itemStyle);
-                }
+                if (checkedStyles.length > 0) matchesStyle = checkedStyles.includes(itemStyle);
                 let matchesCategory = true;
-                if (checkedCategories.length > 0) {
-                    matchesCategory = checkedCategories.includes(itemCategory);
-                }
+                if (checkedCategories.length > 0) matchesCategory = checkedCategories.includes(itemCategory);
 
                 if (matchesSearch && matchesPrice && matchesStyle && matchesCategory) {
                     card.classList.remove('hidden');
@@ -2441,13 +1839,13 @@ Email: [Твой Email]
         document.querySelectorAll('.price-inputs input').forEach(input => input.addEventListener('input', filterCatalog));
         document.querySelectorAll('.checkbox-label input').forEach(chk => chk.addEventListener('change', filterCatalog));
 
-        // Закрытие окон по клику вне их
+        // Закрытие окон
         window.onclick = function(event) {
             if (event.target == modal) closeModal();
             if (event.target == checkoutModal) closeCheckout();
         }
 
-        // --- 8. ОФЕРТА И ПРАВИЛА (Табы) ---
+        // --- 9. УХОД И ОФЕРТА ---
         const offerLink = document.getElementById('offerLink');
         const offerSection = document.getElementById('offerSection');
         const rulesLink = document.getElementById('rulesLink');
@@ -2467,13 +1865,13 @@ Email: [Твой Email]
         };
 
         if (rulesLink) rulesLink.addEventListener('click', () => {
+            document.getElementById('infoModalTitle').textContent = "Правила ухода";
+            document.getElementById('compositionContent').style.display = 'none';
+            document.getElementById('rulesContent').style.display = 'flex';
             infoModal.classList.add("show");
             document.body.style.overflow = "hidden";
-            infoTabs.forEach(t => t.classList.remove('active'));
-            document.querySelector('.info-tab-content').classList.remove('active'); // Скрываем контент вкладок
         });
 
-        // Логика табов внутри модалки правил
         infoTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 infoTabs.forEach(t => t.classList.remove('active'));
@@ -2483,8 +1881,7 @@ Email: [Твой Email]
             });
         });
 
-    }); // Конец DOMContentLoaded
+    }); 
 </script>
 </body>
 </html>
-
